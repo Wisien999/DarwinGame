@@ -1,8 +1,16 @@
 package DarwinGame;
 
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public record Vector2d(int x, int y) {
+    public static Vector2d getRandomVectorBetween(Vector2d lowerLeft, Vector2d upperRight) {
+        int x = ThreadLocalRandom.current().nextInt(lowerLeft.x(), upperRight.x() + 1);
+        int y = ThreadLocalRandom.current().nextInt(lowerLeft.y(), upperRight.y() + 1);
+
+        return new Vector2d(x, y);
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
@@ -33,7 +41,6 @@ public record Vector2d(int x, int y) {
     public Vector2d add(Vector2d other) {
         return new Vector2d(this.x + other.x, this.y + other.y);
     }
-
     public Vector2d subtract(Vector2d other) {
         return new Vector2d(this.x - other.x, this.y - other.y);
     }
@@ -50,7 +57,6 @@ public record Vector2d(int x, int y) {
     public int hashCode() {
         return Objects.hash(x, y);
     }
-
     public Vector2d opposite() {
         return new Vector2d(-this.x, -this.y);
     }

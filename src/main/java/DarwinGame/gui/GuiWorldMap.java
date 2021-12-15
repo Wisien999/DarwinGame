@@ -66,7 +66,7 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
             for (int y = minY; y <= maxY; y++) {
                 Vector2d position = new Vector2d(x, y);
                 StackPane cellBox = new StackPane();
-                cellBox.setBackground(new Background(new BackgroundFill(Color.GREENYELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
+                cellBox.setBackground(new Background(new BackgroundFill(Color.KHAKI, CornerRadii.EMPTY, Insets.EMPTY)));
                 if (this.map.getJungleBoundary().isInside(position)) {
                     cellBox.setBackground(new Background(new BackgroundFill(Color.FORESTGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
                 }

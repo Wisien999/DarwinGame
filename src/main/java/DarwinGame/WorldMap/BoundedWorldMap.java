@@ -22,17 +22,5 @@ public class BoundedWorldMap extends AbstractWorldMap {
         }
 
         return oldPosition;
-
-//        int x = newPosition.x();
-//        int y = newPosition.y();
-//        int mapX = mapBoundary.upperRight().x();
-//        int mapY = mapBoundary.upperRight().y();
-//
-//        x = Math.max(0, x);
-//        x = Math.min(mapX, x);
-//        y = Math.max(0, y);
-//        y = Math.min(mapY, y);
-//
-//        return new Vector2d(x, y);
     }
 }

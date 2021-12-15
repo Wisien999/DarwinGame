@@ -5,13 +5,15 @@ import DarwinGame.IPositionChangeObserver;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
+import DarwinGame.MapElements.Grass;
 import DarwinGame.Vector2d;
+import javafx.util.Pair;
 
 import java.util.*;
 
 public abstract class AbstractWorldMap implements IPositionChangeObserver, IEnergyChangeObserver {
     protected final Map<Vector2d, AbstractWorldMapElement> map = new LinkedHashMap<>();
-    protected final Map<Vector2d, SortedSet<MapAnimalContainer>> animals = new LinkedHashMap<>();
+    protected final Map<Vector2d, NavigableSet<MapAnimalContainer>> animals = new LinkedHashMap<>();
     protected final Boundary jungleBoundary;
     protected final Boundary mapBoundary;
 
@@ -38,26 +40,51 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
             throw new IllegalArgumentException("Object can't be placed on position " + animal.getPosition());
         }
 
-        this.animals.putIfAbsent(animal.getPosition(), new TreeSet<>());
+        if (!this.animals.containsKey(animal.getPosition())) {
+            this.animals.put(animal.getPosition(), new TreeSet<>());
+            this.incrementSlotsTaken(animal.getPosition());
+        }
         this.animals.get(animal.getPosition()).add(new MapAnimalContainer(animal.getEnergy(), animal));
 
-        animal.addObserver(this);
+        animal.addPositionObserver(this);
+    }
+
+    private void incrementSlotsTaken(Vector2d position) {
+        if (this.mapBoundary.isInside(position)) {
+            this.mapBoundary.incrementSlotsTaken();
+        }
+        if (this.jungleBoundary.isInside(position)) {
+            this.jungleBoundary.incrementSlotsTaken();
+        }
+    }
+    private void decrementSlotsTaken(Vector2d position) {
+        if (this.mapBoundary.isInside(position)) {
+            this.mapBoundary.decrementSlotsTaken();
+        }
+        if (this.jungleBoundary.isInside(position)) {
+            this.jungleBoundary.decrementSlotsTaken();
+        }
     }
 
     @Override
     public boolean positionChanged(AbstractMovableWorldMapElement worldMapElement, Vector2d oldPosition, Vector2d newPosition) {
         if (worldMapElement instanceof Animal animal) {
-            System.out.println(worldMapElement.getPosition());
+            System.out.println(animal.getPosition());
             MapAnimalContainer mapAnimalContainer = new MapAnimalContainer(animal.getEnergy(), animal);
             this.animals.get(oldPosition).remove(mapAnimalContainer);
-            this.animals.putIfAbsent(newPosition, new TreeSet<>());
+            removeAnimalsEntryIfPossible(oldPosition);
+            if (!this.animals.containsKey(newPosition)) {
+                this.animals.put(newPosition, new TreeSet<>());
+                this.incrementSlotsTaken(newPosition);
+            }
             this.animals.get(newPosition).add(mapAnimalContainer);
 
-            removeAnimalsEntryIfPossible(oldPosition);
         }
         else {
             this.map.remove(oldPosition);
+            this.decrementSlotsTaken(oldPosition);
             this.map.put(newPosition, worldMapElement);
+            this.incrementSlotsTaken(newPosition);
         }
 
         return true;
@@ -66,6 +93,7 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     @Override
     public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
         MapAnimalContainer oldMapAnimalContainer = new MapAnimalContainer(oldEnergy, animal);
+        System.out.println(animal.toString());
         var positionSet = this.animals.get(animal.getPosition());
         positionSet.remove(oldMapAnimalContainer);
 
@@ -79,11 +107,55 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     private void removeAnimalsEntryIfPossible(Vector2d position) {
         if (this.animals.get(position).isEmpty()) {
             this.animals.remove(position);
+            this.decrementSlotsTaken(position);
         }
     }
 
-    public SortedSet<MapAnimalContainer> getAnimalsAt(Vector2d position) {
+    public NavigableSet<MapAnimalContainer> getAnimalsAt(Vector2d position) {
         return this.animals.getOrDefault(position, new TreeSet<>());
+    }
+
+    public Optional<Pair<Animal, Animal>> getPairOfStrongestAnimalsAt(Vector2d position) {
+        NavigableSet<MapAnimalContainer> allAnimals = this.getAnimalsAt(position);
+
+        if (allAnimals.size() >= 2) {
+            var iterator = allAnimals.descendingIterator();
+
+            return Optional.of(new Pair<>(iterator.next().animal(), iterator.next().animal()));
+        }
+
+        return Optional.empty();
+    }
+
+    public void growGrass(int noOfTuftsInJungle, int noOfTuftsInSteppes) {
+        for (int i = 0; i < noOfTuftsInJungle; i++) {
+            if (this.jungleBoundary.area() > this.jungleBoundary.getSlotsTaken()) {
+                Vector2d grassPosition;
+                do {
+                    grassPosition = Vector2d.getRandomVectorBetween(
+                            this.getJungleBoundary().lowerLeft(),
+                            this.getJungleBoundary().upperRight());
+                } while (this.isOccupied(grassPosition));
+
+                this.map.put(grassPosition, new Grass(grassPosition));
+                this.incrementSlotsTaken(grassPosition);
+            }
+        }
+
+        for (int i = 0; i < noOfTuftsInSteppes; i++) {
+            if (this.mapBoundary.area() - this.jungleBoundary.area() > this.mapBoundary.getSlotsTaken() - this.jungleBoundary.getSlotsTaken()) {
+                Vector2d grassPosition;
+                do {
+                    grassPosition = Vector2d.getRandomVectorBetween(
+                            this.getMapBoundary().lowerLeft(),
+                            this.getMapBoundary().upperRight());
+                } while (
+                        this.getJungleBoundary().isInside(grassPosition) || this.isOccupied(grassPosition));
+
+                this.map.put(grassPosition, new Grass(grassPosition));
+                this.incrementSlotsTaken(grassPosition);
+            }
+        }
     }
 
     public AbstractWorldMapElement getMapElementAt(Vector2d position) {
@@ -91,7 +163,9 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     }
 
     public void removeMapElementAt(Vector2d position) {
-        this.map.remove(position);
+        if (this.map.remove(position) != null) {
+            this.decrementSlotsTaken(position);
+        }
     }
     public AbstractWorldMapElement getTopWorldMapElementAt(Vector2d position) {
         var animals = this.getAnimalsAt(position);

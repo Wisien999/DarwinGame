@@ -10,16 +10,11 @@ public class Grass extends AbstractWorldMapElement {
 
     @Override
     public String toString() {
-        return "*";
+        return "T " + this.position.toString();
     }
 
     @Override
     public String getImageResource() {
         return PathConfig.imageBasePath + "grass.png";
-    }
-
-    @Override
-    public String toStringRepresentation() {
-        return "T " + this.position.toString();
     }
 }

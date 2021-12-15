@@ -12,6 +12,7 @@ import java.util.Random;
 
 
 public class Animal extends AbstractMovableWorldMapElement {
+    public final int id = IdGenerator.ID_GENERATOR.getAndIncrement();
     private MapDirection orientation = MapDirection.NORTH;
     private int energy;
     private AnimalStatus status = AnimalStatus.ALIVE;
@@ -42,7 +43,6 @@ public class Animal extends AbstractMovableWorldMapElement {
     }
 
     public void move(MoveDirection direction) {
-
         switch (direction) {
             case FORWARD, BACKWARD -> {
                 Vector2d orientationVector = this.orientation.toUnitVector();
@@ -73,7 +73,7 @@ public class Animal extends AbstractMovableWorldMapElement {
                 ;
     }
 
-    public void procreate(Animal otherAnimal) {
+    public Animal procreate(Animal otherAnimal) {
         if (!this.canProcreate(otherAnimal)) {
             throw new IllegalArgumentException("These animals can't procreate");
         }
@@ -110,14 +110,12 @@ public class Animal extends AbstractMovableWorldMapElement {
 
         Animal child = new Animal(this.map, this.position, thisEnergyCost + otherEnergyCost, newGenotype);
         this.map.place(child);
-    }
 
-    public String toStringRepresentation() {
-        return "A " + this.orientation.toString() + " " + this.position.toString();
+        return child;
     }
 
     public String toString() {
-        return this.orientation.toString();
+        return "A " + this.orientation.toString() + " " + this.position.toString();
     }
 
     @Override
@@ -137,9 +135,6 @@ public class Animal extends AbstractMovableWorldMapElement {
 
     public void nextDay() {
         this.setEnergy(this.getEnergy() - SimulationConfig.simulationDayEnergyCost);
-        if (this.getEnergy() <= 0) {
-            this.status = AnimalStatus.DEAD;
-        }
     }
 
     public void makeTurnAction() {
@@ -167,6 +162,9 @@ public class Animal extends AbstractMovableWorldMapElement {
             observer.energyChanged(this, this.energy, energy);
         }
         this.energy = energy;
+        if (this.getEnergy() <= 0) {
+            this.status = AnimalStatus.DEAD;
+        }
     }
 
     public AnimalStatus getStatus() {

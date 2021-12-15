@@ -57,6 +57,9 @@ public class App extends Application {
         var jungleWidthTextBox = new TextField();
         gridPane.addRow(4, new Label("Jungle width:"), jungleWidthTextBox);
 
+        var noOfPrimaryAnimalsTextBox = new TextField();
+        gridPane.addRow(5, new Label("Number of primary animals"), noOfPrimaryAnimalsTextBox);
+
 
         Button startSimulationButton = new Button("Start Simulation");
         startSimulationButton.setOnAction(event -> {
@@ -82,6 +85,8 @@ public class App extends Application {
             this.unboundedWorldEngineThread.start();
 
         });
+
+
         layout.getChildren().add(startSimulationButton);
         return new Scene(layout, 500, 600);
     }

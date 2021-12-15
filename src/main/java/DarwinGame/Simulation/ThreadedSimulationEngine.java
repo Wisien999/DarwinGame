@@ -8,6 +8,7 @@ import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.Boundary;
 import DarwinGame.gui.IMapRefreshNeededObserver;
+import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -90,6 +91,32 @@ public class ThreadedSimulationEngine implements IEngine, Runnable {
         }
     }
 
+    private void makeAnimalsProcreate() {
+        Set<Vector2d> usedPositions = new HashSet<>();
+        List<Animal> children = new ArrayList<>();
+
+        for (Animal animal : this.animals) {
+            if (usedPositions.contains(animal.getPosition())) {
+                continue;
+            }
+
+            usedPositions.add(animal.getPosition());
+
+            var topPair = this.map.getPairOfStrongestAnimalsAt(animal.getPosition());
+            topPair.ifPresent(animalPair -> {
+                var animal1 = animalPair.getKey();
+                var animal2 = animalPair.getValue();
+
+                if (animal1.canProcreate(animal2)) {
+                    Animal child = animal1.procreate(animal2);
+                    children.add(child);
+                }
+            });
+        }
+
+        this.animals.addAll(children);
+    }
+
     private void makeTurnAction() {
         for (Animal animal : this.animals) {
             animal.makeTurnAction();
@@ -99,10 +126,9 @@ public class ThreadedSimulationEngine implements IEngine, Runnable {
     private void makeSimulationStep() {
         lowerEnergyLevelsAndRemoveDeadAnimals();
         makeTurnAction();
-
-
-
-
+        feedAnimals();
+        makeAnimalsProcreate();
+        this.map.growGrass(1, 1);
     }
 
     public void addMapRefreshNeededObserver(IMapRefreshNeededObserver observer) {

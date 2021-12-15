@@ -16,11 +16,10 @@ abstract public class AbstractMovableWorldMapElement extends AbstractWorldMapEle
 
     public abstract void move(MoveDirection direction);
 
-    public void addObserver(IPositionChangeObserver observer) {
+    public void addPositionObserver(IPositionChangeObserver observer) {
         this.positionObservers.add(observer);
     }
-
-    public void removeObserver(IPositionChangeObserver observer) {
+    public void removePositionObserver(IPositionChangeObserver observer) {
         this.positionObservers.remove(observer);
     }
 

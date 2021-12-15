@@ -14,7 +14,7 @@ public enum MapDirection {
     public String toString() {
         String firstLetter = this.name().substring(0, 1);
         if (this.name().length() >= 5) {
-            return firstLetter + this.name().charAt(5);
+            return firstLetter + this.name().charAt(4);
         }
         return firstLetter;
     }

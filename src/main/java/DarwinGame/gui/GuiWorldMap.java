@@ -8,7 +8,6 @@ import DarwinGame.WorldMap.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -34,7 +33,6 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
         mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
         mapGrid.getColumnConstraints().clear();
         mapGrid.getRowConstraints().clear();
-        mapGrid.setGridLinesVisible(true);
 
         int minY = map.getLowerLeftDrawLimit().y();
         int minX = map.getLowerLeftDrawLimit().x();

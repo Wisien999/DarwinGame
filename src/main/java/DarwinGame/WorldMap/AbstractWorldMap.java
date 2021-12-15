@@ -107,10 +107,8 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     public Boundary getMapBoundary() {
         return mapBoundary;
     }
-
     public abstract boolean canMoveTo(Vector2d position);
     public abstract Vector2d correctMovePosition(Vector2d oldPosition, Vector2d newPosition);
-
     public Vector2d getLowerLeftDrawLimit() {
         return this.mapBoundary.lowerLeft();
     }

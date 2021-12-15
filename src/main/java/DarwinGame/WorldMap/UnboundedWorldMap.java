@@ -15,25 +15,8 @@ public class UnboundedWorldMap extends AbstractWorldMap {
     }
 
     @Override
-    public void place(Animal animal) {
-        super.place(animal);
-
-        this.map.put(animal.getPosition(), animal);
-    }
-
-    @Override
     public Vector2d correctMovePosition(Vector2d oldPosition, Vector2d newPosition) {
         return new Vector2d(newPosition.x() % this.getUpperRightDrawLimit().x(),
                 newPosition.y() % this.getUpperRightDrawLimit().y());
-    }
-
-    @Override
-    public Vector2d getLowerLeftDrawLimit() {
-        return this.mapBoundary.lowerLeft();
-    }
-
-    @Override
-    public Vector2d getUpperRightDrawLimit() {
-        return this.mapBoundary.upperRight();
     }
 }

@@ -1,11 +1,10 @@
 package DarwinGame.gui;
 
-import DarwinGame.Simulation.SimulationConfig;
-import DarwinGame.Simulation.ThreadedSimulationEngine;
 import DarwinGame.WorldMap.BoundedWorldMap;
 import DarwinGame.WorldMap.UnboundedWorldMap;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,13 +13,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 
+
 public class App extends Application {
     GuiWorldMap boundedWorldMapGuiElement;
     GuiWorldMap unboundedWorldMapGuiElement;
-    ThreadedSimulationEngine boundedWorldEngine;
-    ThreadedSimulationEngine unboundedWorldEngine;
-    Thread boundedWorldEngineThread;
-    Thread unboundedWorldEngineThread;
     Stage primaryStage;
 
     @Override
@@ -66,24 +62,10 @@ public class App extends Application {
             BoundedWorldMap boundedWorldMap = new BoundedWorldMap(10, 10, 5, 5);
             UnboundedWorldMap unboundedWorldMap = new UnboundedWorldMap(10, 10, 5, 5);
 
-            this.boundedWorldEngine = new ThreadedSimulationEngine(boundedWorldMap, SimulationConfig.noOfStartingAnimals);
-            this.unboundedWorldEngine = new ThreadedSimulationEngine(unboundedWorldMap, SimulationConfig.noOfStartingAnimals);
-
             this.boundedWorldMapGuiElement = new GuiWorldMap(boundedWorldMap);
             this.unboundedWorldMapGuiElement = new GuiWorldMap(unboundedWorldMap);
 
-            this.boundedWorldEngine.addMapRefreshNeededObserver(this.boundedWorldMapGuiElement);
-            this.unboundedWorldEngine.addMapRefreshNeededObserver(this.unboundedWorldMapGuiElement);
-
-
             this.primaryStage.setScene(createSimulationScene());
-
-            this.boundedWorldEngineThread = new Thread(this.boundedWorldEngine);
-            this.unboundedWorldEngineThread = new Thread(this.unboundedWorldEngine);
-
-            this.boundedWorldEngineThread.start();
-            this.unboundedWorldEngineThread.start();
-
         });
 
 
@@ -91,17 +73,20 @@ public class App extends Application {
         return new Scene(layout, 500, 600);
     }
 
+
     private Scene createSimulationScene() {
         VBox layout = new VBox();
 
 
-        HBox mapGrids = new HBox();
-        layout.getChildren().add(mapGrids);
+        HBox simulationsGrids = new HBox();
+        layout.getChildren().addAll(simulationsGrids);
 
         var spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(this.unboundedWorldMapGuiElement.getMapBox(), new Insets(10, 10, 0, 10));
+        HBox.setMargin(this.boundedWorldMapGuiElement.getMapBox(), new Insets(10, 10, 0, 10));
 
-        mapGrids.getChildren().addAll(this.boundedWorldMapGuiElement.getMapGrid(), spacer, this.unboundedWorldMapGuiElement.getMapGrid());
+        simulationsGrids.getChildren().addAll(this.unboundedWorldMapGuiElement.getMapBox(), spacer, this.boundedWorldMapGuiElement.getMapBox());
 
 
         return new Scene(layout, 1000, 600);

@@ -10,7 +10,7 @@ public class Grass extends AbstractWorldMapElement {
 
     @Override
     public String toString() {
-        return "T " + this.position.toString();
+        return "G " + this.position.toString();
     }
 
     @Override

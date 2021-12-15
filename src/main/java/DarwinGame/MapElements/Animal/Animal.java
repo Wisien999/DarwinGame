@@ -13,12 +13,13 @@ import java.util.Random;
 
 public class Animal extends AbstractMovableWorldMapElement {
     public final int id = IdGenerator.ID_GENERATOR.getAndIncrement();
-    private MapDirection orientation = MapDirection.NORTH;
+    private MapDirection orientation = MapDirection.randomMapDirection();
     private int energy;
     private AnimalStatus status = AnimalStatus.ALIVE;
     private final AbstractWorldMap map;
     private final Genotype genotype;
     private final List<IEnergyChangeObserver> energyObservers = new ArrayList<>();
+    private final List<IAnimalDeathObserver> deathObservers = new ArrayList<>();
 
     public Animal(AbstractWorldMap map, Vector2d initialPosition) {
         super(initialPosition);
@@ -27,11 +28,9 @@ public class Animal extends AbstractMovableWorldMapElement {
             double randNum = Math.random()*8;
             genes.add(MoveDirection.valueOf((int) randNum).orElse(MoveDirection.TURN315));
         }
-
         this.map = map;
         this.energy = SimulationConfig.defaultAmountOfEnergyPoints;
         this.genotype = new Genotype(genes);
-        this.addEnergyObserver(map);
     }
 
     public Animal(AbstractWorldMap map, Vector2d initialPosition, int startingEnergy, Genotype genotype) {
@@ -39,7 +38,6 @@ public class Animal extends AbstractMovableWorldMapElement {
         this.map = map;
         this.energy = startingEnergy;
         this.genotype = genotype;
-        this.addEnergyObserver(map);
     }
 
     public void move(MoveDirection direction) {
@@ -108,10 +106,7 @@ public class Animal extends AbstractMovableWorldMapElement {
         this.setEnergy(this.getEnergy() - thisEnergyCost);
         otherAnimal.setEnergy(otherAnimal.getEnergy() - otherEnergyCost);
 
-        Animal child = new Animal(this.map, this.position, thisEnergyCost + otherEnergyCost, newGenotype);
-        this.map.place(child);
-
-        return child;
+        return new Animal(this.map, this.position, thisEnergyCost + otherEnergyCost, newGenotype);
     }
 
     public String toString() {
@@ -163,8 +158,16 @@ public class Animal extends AbstractMovableWorldMapElement {
         }
         this.energy = energy;
         if (this.getEnergy() <= 0) {
-            this.status = AnimalStatus.DEAD;
+            die();
         }
+    }
+
+    protected void die() {
+        this.status = AnimalStatus.DEAD;
+        for (var observer : deathObservers) {
+            observer.animalDied(this);
+        }
+
     }
 
     public AnimalStatus getStatus() {
@@ -176,5 +179,11 @@ public class Animal extends AbstractMovableWorldMapElement {
     }
     public void removeEnergyObserver(IEnergyChangeObserver observer) {
         this.energyObservers.remove(observer);
+    }
+    public void addDeathObserver(IAnimalDeathObserver observer) {
+        this.deathObservers.add(observer);
+    }
+    public void removeDeathObserver(IAnimalDeathObserver observer) {
+        this.deathObservers.remove(observer);
     }
 }

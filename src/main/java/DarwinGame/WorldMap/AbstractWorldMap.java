@@ -1,5 +1,6 @@
 package DarwinGame.WorldMap;
 
+import DarwinGame.IAnimalDeathObserver;
 import DarwinGame.IEnergyChangeObserver;
 import DarwinGame.IPositionChangeObserver;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;
@@ -11,7 +12,7 @@ import javafx.util.Pair;
 
 import java.util.*;
 
-public abstract class AbstractWorldMap implements IPositionChangeObserver, IEnergyChangeObserver {
+public abstract class AbstractWorldMap implements IPositionChangeObserver, IEnergyChangeObserver, IAnimalDeathObserver {
     protected final Map<Vector2d, AbstractWorldMapElement> map = new LinkedHashMap<>();
     protected final Map<Vector2d, NavigableSet<MapAnimalContainer>> animals = new LinkedHashMap<>();
     protected final Boundary jungleBoundary;
@@ -47,6 +48,8 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
         this.animals.get(animal.getPosition()).add(new MapAnimalContainer(animal.getEnergy(), animal));
 
         animal.addPositionObserver(this);
+        animal.addEnergyObserver(this);
+        animal.addDeathObserver(this);
     }
 
     private void incrementSlotsTaken(Vector2d position) {
@@ -97,11 +100,8 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
         var positionSet = this.animals.get(animal.getPosition());
         positionSet.remove(oldMapAnimalContainer);
 
-        if (newEnergy > 0) {
-            MapAnimalContainer newMapAnimalContainer = new MapAnimalContainer(newEnergy, animal);
-            positionSet.add(newMapAnimalContainer);
-        }
-        removeAnimalsEntryIfPossible(animal.getPosition());
+        MapAnimalContainer newMapAnimalContainer = new MapAnimalContainer(newEnergy, animal);
+        positionSet.add(newMapAnimalContainer);
     }
 
     private void removeAnimalsEntryIfPossible(Vector2d position) {
@@ -191,4 +191,9 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     }
 
 
+    @Override
+    public void animalDied(Animal animal) {
+        this.animals.get(animal.getPosition()).remove(new MapAnimalContainer(animal.getEnergy(), animal));
+        removeAnimalsEntryIfPossible(animal.getPosition());
+    }
 }

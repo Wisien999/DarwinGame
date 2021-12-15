@@ -8,19 +8,21 @@ import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.Boundary;
 import DarwinGame.gui.IMapRefreshNeededObserver;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ThreadedSimulationEngine implements IEngine, Runnable {
+public class SimulationEngine implements IEngine, Runnable {
     private final AbstractWorldMap map;
     private final List<Animal> animals = new ArrayList<>();
     private final List<Animal> deadAnimals = new ArrayList<>();
     private final List<IMapRefreshNeededObserver> mapRefreshNeededObservers = new ArrayList<>();
 
+    public SimulationEngine(AbstractWorldMap map) {
+        this(map, SimulationConfig.noOfStartingAnimals);
+    }
 
-    public ThreadedSimulationEngine(AbstractWorldMap map, int noOfStartingAnimals) {
+    public SimulationEngine(AbstractWorldMap map, int noOfStartingAnimals) {
         this.map = map;
 
         Boundary mapBoundary = this.map.getMapBoundary();
@@ -50,7 +52,7 @@ public class ThreadedSimulationEngine implements IEngine, Runnable {
                 //noinspection BusyWait
                 Thread.sleep(SimulationConfig.simulationMoveDelay);
             } catch (InterruptedException e) {
-                System.err.println("Interruption while waiting for animal move!");
+                return;
             }
         }
     }
@@ -114,6 +116,9 @@ public class ThreadedSimulationEngine implements IEngine, Runnable {
             });
         }
 
+        for (Animal child : children) {
+            this.map.place(child);
+        }
         this.animals.addAll(children);
     }
 

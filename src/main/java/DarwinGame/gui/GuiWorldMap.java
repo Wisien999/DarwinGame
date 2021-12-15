@@ -1,13 +1,14 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.AbstractWorldMapElement;
-import DarwinGame.Simulation.SimulationConfig;
-import DarwinGame.Simulation.ThreadedSimulationEngine;
+import DarwinGame.MapElements.Animal.Animal;
+import DarwinGame.Simulation.SimulationController;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -15,13 +16,54 @@ import javafx.scene.paint.Color;
 public class GuiWorldMap implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
 
-    GridPane mapGrid = new GridPane();
+    private final GridPane mapGrid = new GridPane();
+    private final VBox mapBox = new VBox();
+
+    private final SimulationController simulationController;
 
     public GuiWorldMap(AbstractWorldMap map) {
         this.map = map;
-
-        this.mapGrid.getChildren().clear();
         this.mapGrid.setGridLinesVisible(true);
+
+        this.simulationController = new SimulationController(map);
+        this.simulationController.getEngine().addMapRefreshNeededObserver(this);
+
+        Button startButton = new Button("Start simulation");
+        startButton.setOnAction(e -> {
+            startSimulationButtonFire(startButton);
+        });
+
+        HBox controls = new HBox();
+        controls.getChildren().addAll(startButton);
+
+
+        mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+        mapBox.getChildren().addAll(controls, mapGrid);
+
+        renderGrid();
+    }
+
+
+    private void startSimulationButtonFire(Button button) {
+        simulationController.startSimulation();
+
+        button.setText("Stop simulation");
+        button.setOnAction(e -> {
+            stopSimulationButtonFire(button);
+        });
+    }
+
+    private void stopSimulationButtonFire(Button button) {
+        simulationController.stopSimulation();
+
+        button.setText("Start simulation");
+        button.setOnAction(e -> {
+            startSimulationButtonFire(button);
+        });
+    }
+
+    public VBox getMapBox() {
+        return mapBox;
     }
 
     @Override
@@ -30,7 +72,6 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
     }
 
     void renderGrid() {
-        mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
         mapGrid.getColumnConstraints().clear();
         mapGrid.getRowConstraints().clear();
 
@@ -76,15 +117,16 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
                     GuiMapElementBox element = new GuiMapElementBox(worldMapElement);
                     VBox graphicalElement = element.getGraphicalElement();
                     cellBox.getChildren().add(graphicalElement);
+                    if (element.mapElement instanceof Animal animal) {
+                        Label energyLabel = new Label(Integer.toString(animal.getEnergy()));
+                        energyLabel.setTextFill(Color.WHITE);
+                        cellBox.getChildren().add(energyLabel);
+                    }
                 }
 
                 GridPane.setHalignment(cellBox, HPos.CENTER);
                 this.mapGrid.add(cellBox, position.x() - minX + 1, maxY - position.y() + 1, 1, 1);
             }
         }
-    }
-
-    public GridPane getMapGrid() {
-        return mapGrid;
     }
 }

@@ -22,7 +22,7 @@ public class UnboundedWorldMap extends AbstractWorldMap {
     }
 
     @Override
-    public Vector2d correctMovePosition(Vector2d newPosition) {
+    public Vector2d correctMovePosition(Vector2d oldPosition, Vector2d newPosition) {
         return new Vector2d(newPosition.x() % this.getUpperRightDrawLimit().x(),
                 newPosition.y() % this.getUpperRightDrawLimit().y());
     }

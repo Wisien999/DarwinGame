@@ -3,58 +3,64 @@ package DarwinGame.MapElements.Animal;
 import DarwinGame.*;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;
 import DarwinGame.Simulation.SimulationConfig;
+import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.gui.PathConfig;
-import DarwinGame.WorldMap.IWorldMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class Animal extends AbstractMovableWorldMapElement {
     private MapDirection orientation = MapDirection.NORTH;
     private int energy;
-    private final IWorldMap map;
+    private AnimalStatus status = AnimalStatus.ALIVE;
+    private final AbstractWorldMap map;
     private final Genotype genotype;
+    private final List<IEnergyChangeObserver> energyObservers = new ArrayList<>();
 
-    public Animal(IWorldMap map, Vector2d initialPosition) {
+    public Animal(AbstractWorldMap map, Vector2d initialPosition) {
         super(initialPosition);
-        List<Gene> genes = new ArrayList<Gene>();
+        List<MoveDirection> genes = new ArrayList<>();
         for (int i = 0; i < Genotype.supposedLength; i++) {
             double randNum = Math.random()*8;
-            if (randNum >= 8.0) {
-                randNum = 7.0;
-            }
-            genes.add(new Gene((int) randNum));
+            genes.add(MoveDirection.valueOf((int) randNum).orElse(MoveDirection.TURN315));
         }
 
         this.map = map;
         this.energy = SimulationConfig.defaultAmountOfEnergyPoints;
         this.genotype = new Genotype(genes);
+        this.addEnergyObserver(map);
     }
 
-    public Animal(IWorldMap map, Vector2d initialPosition, int startingEnergy, Genotype genotype) {
+    public Animal(AbstractWorldMap map, Vector2d initialPosition, int startingEnergy, Genotype genotype) {
         super(initialPosition);
         this.map = map;
         this.energy = startingEnergy;
         this.genotype = genotype;
+        this.addEnergyObserver(map);
     }
 
     public void move(MoveDirection direction) {
-        Vector2d orientationVector = this.orientation.toUnitVector();
-
 
         switch (direction) {
-            case LEFT -> this.orientation = this.orientation.previous();
-            case RIGHT -> this.orientation = this.orientation.next();
-            default -> {
+            case FORWARD, BACKWARD -> {
+                Vector2d orientationVector = this.orientation.toUnitVector();
                 Vector2d newPosition = switch (direction) {
                     case FORWARD -> this.position.add(orientationVector);
-                    case BACKWARD -> this.position.add(orientationVector.opposite());
+                    case BACKWARD -> this.position.subtract(orientationVector);
                     default -> this.position;
                 };
                 if (this.map.canMoveTo(newPosition)) {
+                    newPosition = this.map.correctMovePosition(this.getPosition(), newPosition);
                     this.positionChanged(this.position, newPosition);
                     this.position = newPosition;
+                }
+            }
+            default -> {
+                int noOf45turns = direction.numericalValue;
+                for (int i = 0; i < noOf45turns; i++) {
+                    this.orientation = this.orientation.next();
                 }
             }
         }
@@ -117,13 +123,34 @@ public class Animal extends AbstractMovableWorldMapElement {
     @Override
     public String getImageResource() {
         String basePath = PathConfig.imageBasePath;
-        return basePath + switch (this.getOrientation()) {
-            case NORTH -> "up.png";
-            case EAST -> "right.png";
-            case SOUTH -> "down.png";
-            case WEST -> "left.png";
-            default -> "animal.png";
+        return basePath + "animal/" + switch (this.getOrientation()) {
+            case NORTH -> "0.png";
+            case NORTHEAST -> "45.png";
+            case EAST -> "90.png";
+            case SOUTHEAST -> "135.png";
+            case SOUTH -> "180.png";
+            case SOUTHWEST -> "225.png";
+            case WEST -> "270.png";
+            case NORTHWEST -> "315.png";
         };
+    }
+
+    public void nextDay() {
+        this.setEnergy(this.getEnergy() - SimulationConfig.simulationDayEnergyCost);
+        if (this.getEnergy() <= 0) {
+            this.status = AnimalStatus.DEAD;
+        }
+    }
+
+    public void makeTurnAction() {
+        int index = new Random().nextInt(this.genotype.getGenotypeLength());
+        MoveDirection geneToUse = this.genotype.getGeneAt(index);
+
+        this.move(geneToUse);
+    }
+
+    public void feed(int energyPoints) {
+        this.setEnergy(this.getEnergy() + energyPoints);
     }
 
     public MapDirection getOrientation() {return orientation;}
@@ -136,6 +163,20 @@ public class Animal extends AbstractMovableWorldMapElement {
     }
 
     protected void setEnergy(int energy) {
+        for (IEnergyChangeObserver observer : this.energyObservers) {
+            observer.energyChanged(this, this.energy, energy);
+        }
         this.energy = energy;
+    }
+
+    public AnimalStatus getStatus() {
+        return status;
+    }
+
+    public void addEnergyObserver(IEnergyChangeObserver observer) {
+        this.energyObservers.add(observer);
+    }
+    public void removeEnergyObserver(IEnergyChangeObserver observer) {
+        this.energyObservers.remove(observer);
     }
 }

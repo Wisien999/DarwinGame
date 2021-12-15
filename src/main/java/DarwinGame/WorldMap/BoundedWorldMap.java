@@ -12,47 +12,27 @@ public class BoundedWorldMap extends AbstractWorldMap {
     }
 
     public boolean canMoveTo(Vector2d position) {
-        return position != null;
+        return getMapBoundary().isInside(position);
     }
 
     @Override
-    public void place(Animal animal) {
-        super.place(animal);
-
-        this.map.put(animal.getPosition(), animal);
-    }
-
-    @Override
-    public boolean positionChanged(AbstractMovableWorldMapElement worldMapElement, Vector2d oldPosition, Vector2d newPosition) {
-        return false;
-    }
-
-    @Override
-    public Vector2d correctMovePosition(Vector2d newPosition) {
+    public Vector2d correctMovePosition(Vector2d oldPosition, Vector2d newPosition) {
         if (mapBoundary.isInside(newPosition)) {
             return newPosition;
         }
 
-        int x = newPosition.x();
-        int y = newPosition.y();
-        int mapX = mapBoundary.upperRight().x();
-        int mapY = mapBoundary.upperRight().y();
+        return oldPosition;
 
-        x = Math.max(0, x);
-        x = Math.min(mapX, x);
-        y = Math.max(0, y);
-        y = Math.min(mapY, y);
-
-        return new Vector2d(x, y);
-    }
-
-    @Override
-    public Vector2d getLowerLeftDrawLimit() {
-        return this.mapBoundary.lowerLeft();
-    }
-
-    @Override
-    public Vector2d getUpperRightDrawLimit() {
-        return this.mapBoundary.upperRight();
+//        int x = newPosition.x();
+//        int y = newPosition.y();
+//        int mapX = mapBoundary.upperRight().x();
+//        int mapY = mapBoundary.upperRight().y();
+//
+//        x = Math.max(0, x);
+//        x = Math.min(mapX, x);
+//        y = Math.max(0, y);
+//        y = Math.min(mapY, y);
+//
+//        return new Vector2d(x, y);
     }
 }

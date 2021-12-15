@@ -1,11 +1,9 @@
-package DarwinGame;
-
-import DarwinGame.MapElements.Animal.Gene;
+package DarwinGame.MapElements.Animal;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum MoveDirection {
+public enum Gene implements Comparable<Gene> {
     FORWARD(0),
     TURN45(1),
     TURN90(2),
@@ -15,14 +13,14 @@ public enum MoveDirection {
     TURN270(6),
     TURN315(7);
 
-    public final int numericalValue;
-    MoveDirection(int value) {
+    final int numericalValue;
+    Gene(int value) {
         this.numericalValue = value;
     }
 
-    public static Optional<MoveDirection> valueOf(int value) {
+    public static Optional<Gene> valueOf(int value) {
         return Arrays.stream(values())
-                .filter(moveDirection -> moveDirection.numericalValue == value)
+                .filter(legNo -> legNo.numericalValue == value)
                 .findFirst();
     }
 }

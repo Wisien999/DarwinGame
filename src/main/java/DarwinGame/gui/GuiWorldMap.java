@@ -7,15 +7,15 @@ import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 public class GuiWorldMap implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
+
     GridPane mapGrid = new GridPane();
 
     public GuiWorldMap(AbstractWorldMap map) {
@@ -31,12 +31,18 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
     }
 
     void renderGrid() {
+        mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+        mapGrid.getColumnConstraints().clear();
+        mapGrid.getRowConstraints().clear();
+        mapGrid.setGridLinesVisible(true);
+
         int minY = map.getLowerLeftDrawLimit().y();
         int minX = map.getLowerLeftDrawLimit().x();
         int maxY = map.getUpperRightDrawLimit().y();
         int maxX = map.getUpperRightDrawLimit().x();
 
         this.mapGrid.getChildren().clear();
+        mapGrid.setGridLinesVisible(true);
 
         Label xyLabel = new Label("y\\x");
         GridPane.setHalignment(xyLabel, HPos.CENTER);
@@ -61,15 +67,21 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 Vector2d position = new Vector2d(x, y);
-                if (!map.isOccupied(position)) {
-                    continue;
+                StackPane cellBox = new StackPane();
+                cellBox.setBackground(new Background(new BackgroundFill(Color.GREENYELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
+                if (this.map.getJungleBoundary().isInside(position)) {
+                    cellBox.setBackground(new Background(new BackgroundFill(Color.FORESTGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
 
-                AbstractWorldMapElement worldMapElement = map.getTopWorldMapElementAt(position);
-                GuiMapElementBox element = new GuiMapElementBox(worldMapElement);
-                VBox graphicalElement = element.getGraphicalElement();
-                GridPane.setHalignment(graphicalElement, HPos.CENTER);
-                this.mapGrid.add(graphicalElement, position.x() - minX + 1, maxY - position.y() + 1, 1, 1);
+                if (map.isOccupied(position)) {
+                    AbstractWorldMapElement worldMapElement = map.getTopWorldMapElementAt(position);
+                    GuiMapElementBox element = new GuiMapElementBox(worldMapElement);
+                    VBox graphicalElement = element.getGraphicalElement();
+                    cellBox.getChildren().add(graphicalElement);
+                }
+
+                GridPane.setHalignment(cellBox, HPos.CENTER);
+                this.mapGrid.add(cellBox, position.x() - minX + 1, maxY - position.y() + 1, 1, 1);
             }
         }
     }

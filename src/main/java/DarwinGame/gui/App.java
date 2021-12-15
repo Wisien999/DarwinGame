@@ -79,7 +79,7 @@ public class App extends Application {
             this.unboundedWorldEngineThread = new Thread(this.unboundedWorldEngine);
 
             this.boundedWorldEngineThread.start();
-//            this.unboundedWorldEngineThread.start();
+            this.unboundedWorldEngineThread.start();
 
         });
         layout.getChildren().add(startSimulationButton);

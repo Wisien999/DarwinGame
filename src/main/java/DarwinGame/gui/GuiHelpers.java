@@ -4,6 +4,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Paint;
+import javafx.util.Pair;
 
 import java.util.Arrays;
 
@@ -24,5 +26,13 @@ public class GuiHelpers {
 
         pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
         return img;
+    }
+
+    public static Pair<Integer, Integer> getJungleWidthAndHeightFromRatio(double jungleToSteppesRatio, int mapWidth, int mapHeight) {
+        double jungleToMapRatio = jungleToSteppesRatio / (jungleToSteppesRatio + 1);
+        double jungleWidth = mapWidth * Math.sqrt(jungleToMapRatio);
+        double jungleHeight = mapHeight * Math.sqrt(jungleToMapRatio);
+
+        return new Pair<>((int) jungleWidth, (int) jungleHeight);
     }
 }

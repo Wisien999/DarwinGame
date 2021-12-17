@@ -8,18 +8,21 @@ import DarwinGame.gui.PathConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 
 public class Animal extends AbstractMovableWorldMapElement {
     public final int id = IdGenerator.ID_GENERATOR.getAndIncrement();
+    private int lifeSpan = 0;
+    private int noOfChildren = 0;
     private MapDirection orientation = MapDirection.randomMapDirection();
     private int energy;
     private AnimalStatus status = AnimalStatus.ALIVE;
     private final AbstractWorldMap map;
     private final Genotype genotype;
-    private final List<IEnergyChangeObserver> energyObservers = new ArrayList<>();
-    private final List<IAnimalDeathObserver> deathObservers = new ArrayList<>();
+    private final List<IEnergyObserver> energyObservers = new ArrayList<>();
+    private final List<IAnimalLifeObserver> lifeObservers = new ArrayList<>();
 
     public Animal(AbstractWorldMap map, Vector2d initialPosition) {
         super(initialPosition);
@@ -130,6 +133,9 @@ public class Animal extends AbstractMovableWorldMapElement {
 
     public void nextDay() {
         this.setEnergy(this.getEnergy() - SimulationConfig.simulationDayEnergyCost);
+        if (this.status == AnimalStatus.ALIVE) {
+            lifeSpan++;
+        }
     }
 
     public void makeTurnAction() {
@@ -153,7 +159,7 @@ public class Animal extends AbstractMovableWorldMapElement {
     }
 
     protected void setEnergy(int energy) {
-        for (IEnergyChangeObserver observer : this.energyObservers) {
+        for (IEnergyObserver observer : this.energyObservers) {
             observer.energyChanged(this, this.energy, energy);
         }
         this.energy = energy;
@@ -164,7 +170,7 @@ public class Animal extends AbstractMovableWorldMapElement {
 
     protected void die() {
         this.status = AnimalStatus.DEAD;
-        for (var observer : deathObservers) {
+        for (var observer : lifeObservers) {
             observer.animalDied(this);
         }
 
@@ -174,16 +180,33 @@ public class Animal extends AbstractMovableWorldMapElement {
         return status;
     }
 
-    public void addEnergyObserver(IEnergyChangeObserver observer) {
+    public void addEnergyObserver(IEnergyObserver observer) {
         this.energyObservers.add(observer);
     }
-    public void removeEnergyObserver(IEnergyChangeObserver observer) {
+    public void removeEnergyObserver(IEnergyObserver observer) {
         this.energyObservers.remove(observer);
     }
-    public void addDeathObserver(IAnimalDeathObserver observer) {
-        this.deathObservers.add(observer);
+    public void addDeathObserver(IAnimalLifeObserver observer) {
+        this.lifeObservers.add(observer);
     }
-    public void removeDeathObserver(IAnimalDeathObserver observer) {
-        this.deathObservers.remove(observer);
+    public void removeDeathObserver(IAnimalLifeObserver observer) {
+        this.lifeObservers.remove(observer);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Animal animal = (Animal) o;
+        return id == animal.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public int getLifeSpan() {
+        return lifeSpan;
     }
 }

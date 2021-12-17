@@ -1,22 +1,24 @@
 package DarwinGame.WorldMap;
 
-import DarwinGame.IAnimalDeathObserver;
-import DarwinGame.IEnergyChangeObserver;
+import DarwinGame.IAnimalLifeObserver;
+import DarwinGame.IEnergyObserver;
 import DarwinGame.IPositionChangeObserver;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Grass;
+import DarwinGame.Statistics.IGrassActionObserver;
 import DarwinGame.Vector2d;
 import javafx.util.Pair;
 
 import java.util.*;
 
-public abstract class AbstractWorldMap implements IPositionChangeObserver, IEnergyChangeObserver, IAnimalDeathObserver {
+public abstract class AbstractWorldMap implements IPositionChangeObserver, IEnergyObserver, IAnimalLifeObserver {
     protected final Map<Vector2d, AbstractWorldMapElement> map = new LinkedHashMap<>();
     protected final Map<Vector2d, NavigableSet<MapAnimalContainer>> animals = new LinkedHashMap<>();
     protected final Boundary jungleBoundary;
     protected final Boundary mapBoundary;
+    protected final List<IGrassActionObserver> grassGrowObservers = new ArrayList<>();
 
 
     public AbstractWorldMap(int width, int height, int jungleWidth, int jungleHeight) {
@@ -128,6 +130,7 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     }
 
     public void growGrass(int noOfTuftsInJungle, int noOfTuftsInSteppes) {
+        int noOfGrownGrassTufts = 0;
         for (int i = 0; i < noOfTuftsInJungle; i++) {
             if (this.jungleBoundary.area() > this.jungleBoundary.getSlotsTaken()) {
                 Vector2d grassPosition;
@@ -139,6 +142,8 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
 
                 this.map.put(grassPosition, new Grass(grassPosition));
                 this.incrementSlotsTaken(grassPosition);
+
+                noOfGrownGrassTufts++;
             }
         }
 
@@ -154,7 +159,13 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
 
                 this.map.put(grassPosition, new Grass(grassPosition));
                 this.incrementSlotsTaken(grassPosition);
+
+                noOfGrownGrassTufts++;
             }
+        }
+
+        for (var observer : this.grassGrowObservers) {
+            observer.grassGrow(noOfGrownGrassTufts);
         }
     }
 

@@ -1,6 +1,7 @@
 package DarwinGame.MapElements.Animal;
 
 import DarwinGame.MoveDirection;
+import com.google.common.collect.Comparators;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Genotype {
+public class Genotype implements Comparable<Genotype> {
     private List<MoveDirection> genes;
     public static final int supposedLength = 32;
 
@@ -35,6 +36,16 @@ public class Genotype {
     }
     public MoveDirection getGeneAt(int index) {
         return this.genes.get(index);
+    }
+
+    @Override
+    public int compareTo(Genotype o) {
+        for (int i = 0; i < Genotype.supposedLength; i++) {
+            if (genes.get(i).compareTo(o.genes.get(i)) != 0) {
+                return genes.get(i).compareTo(o.genes.get(i));
+            }
+        }
+        return 0;
     }
 }
 

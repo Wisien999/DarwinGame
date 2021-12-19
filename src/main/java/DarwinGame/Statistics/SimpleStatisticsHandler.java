@@ -4,6 +4,7 @@ import DarwinGame.IEnergyObserver;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.IAnimalLifeObserver;
 import DarwinGame.MapElements.Animal.Genotype;
+import DarwinGame.gui.IStatisticsObserver;
 import com.google.common.collect.*;
 
 import java.util.*;
@@ -19,6 +20,9 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
     protected Map<Genotype, Set<Animal>> genotypesAnimals = new HashMap<>();
     SortedMultiset<Genotype> sortedGenotypes = TreeMultiset.create(new GenotypeCountComparator(genotypesAnimals));
 
+
+    protected List<IStatisticsObserver> statisticsObservers = new ArrayList<>();
+
     @Override
     public void animalDied(Animal animal) {
         var genotypeAnimals = genotypesAnimals.get(animal.getGenotype());
@@ -27,6 +31,8 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
             genotypesAnimals.remove(animal.getGenotype());
         }
         sortedGenotypes.remove(animal.getGenotype());
+        double energySum = averageEnergy * noOfAliveAnimals;
+        energySum -= animal.getEnergy();
 
         int noOfChildren = animalChildrenCounter.getOrDefault(animal, 0);
         double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
@@ -34,11 +40,13 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
         noOfAliveAnimals--;
         averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
+        averageEnergy = energySum / noOfAliveAnimals;
 
         double lifeSpanSum = averageLifeSpan * noOfDeadAnimals;
         noOfDeadAnimals++;
         lifeSpanSum += animal.getLifeSpan();
         this.averageLifeSpan = lifeSpanSum / noOfDeadAnimals;
+        statisticsChanged();
     }
 
     @Override
@@ -49,6 +57,7 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
         noOfChildrenSum += 2;
         averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
+        statisticsChanged();
     }
 
     @Override
@@ -61,48 +70,72 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         energySum -= oldEnergy;
         energySum += newEnergy;
         this.averageEnergy = energySum / noOfAliveAnimals;
+        statisticsChanged();
     }
 
     @Override
     public void animalCreated(Animal animal) {
+        System.out.println("ANIMAL CREATED");
         genotypesAnimals.putIfAbsent(animal.getGenotype(), new HashSet<>());
         genotypesAnimals.get(animal.getGenotype()).add(animal);
         sortedGenotypes.add(animal.getGenotype());
 
         double energySum = averageEnergy * noOfAliveAnimals;
+        double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
+
         energySum += animal.getEnergy();
 
         noOfAliveAnimals++;
         averageEnergy = energySum / noOfAliveAnimals;
+        averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
+        statisticsChanged();
     }
 
     @Override
     public void grassEaten() {
         noOfGrassTufts--;
+        statisticsChanged();
     }
 
     @Override
     public void grassGrow(int noOfTufts) {
         noOfGrassTufts += noOfTufts;
+        statisticsChanged();
+    }
+
+    private void statisticsChanged() {
+        for (var observer : statisticsObservers) {
+            observer.refreshStatistic();
+        }
     }
 
     public int getNoOfAliveAnimals() {
         return noOfAliveAnimals;
     }
-
     public int getNoOfGrassTufts() {
         return noOfGrassTufts;
     }
-
     public double getAverageLifeSpan() {
         return averageLifeSpan;
     }
-
     public int getNoOfDeadAnimals() {
         return noOfDeadAnimals;
     }
-
     public double getAverageEnergy() {
         return averageEnergy;
+    }
+    public Optional<Genotype> getDominantGenotype() {
+        var entry = this.sortedGenotypes.lastEntry();
+        if (entry == null) {
+            return Optional.empty();
+        }
+        return Optional.of(entry.getElement());
+    }
+
+    public void addStatisticsObserver(IStatisticsObserver observer) {
+        this.statisticsObservers.add(observer);
+    }
+    public void removeStatisticsObserver(IStatisticsObserver observer) {
+        this.statisticsObservers.remove(observer);
     }
 }

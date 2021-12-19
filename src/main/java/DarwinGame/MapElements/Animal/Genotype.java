@@ -47,5 +47,13 @@ public class Genotype implements Comparable<Genotype> {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        var stringBuilder = new StringBuilder(32);
+        genes.forEach(gene -> stringBuilder.append(gene.numericalValue));
+        return stringBuilder.toString();
+    }
+
 }
 

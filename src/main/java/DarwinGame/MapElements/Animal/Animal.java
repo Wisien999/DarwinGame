@@ -15,7 +15,6 @@ import java.util.Random;
 public class Animal extends AbstractMovableWorldMapElement {
     public final int id = IdGenerator.ID_GENERATOR.getAndIncrement();
     private int lifeSpan = 0;
-    private int noOfChildren = 0;
     private MapDirection orientation = MapDirection.randomMapDirection();
     private int energy;
     private AnimalStatus status = AnimalStatus.ALIVE;
@@ -186,10 +185,10 @@ public class Animal extends AbstractMovableWorldMapElement {
     public void removeEnergyObserver(IEnergyObserver observer) {
         this.energyObservers.remove(observer);
     }
-    public void addDeathObserver(IAnimalLifeObserver observer) {
+    public void addLifeObserver(IAnimalLifeObserver observer) {
         this.lifeObservers.add(observer);
     }
-    public void removeDeathObserver(IAnimalLifeObserver observer) {
+    public void removeLifeObserver(IAnimalLifeObserver observer) {
         this.lifeObservers.remove(observer);
     }
 

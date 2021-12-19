@@ -1,9 +1,11 @@
 package DarwinGame.Simulation;
 
+import DarwinGame.IAnimalLifeObserver;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Animal.AnimalStatus;
 import DarwinGame.MapElements.Grass;
+import DarwinGame.Statistics.SimpleStatisticsHandler;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.Boundary;
@@ -17,9 +19,27 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<Animal> animals = new ArrayList<>();
     private final List<Animal> deadAnimals = new ArrayList<>();
     private final List<IMapRefreshNeededObserver> mapRefreshNeededObservers = new ArrayList<>();
+    private SimpleStatisticsHandler simpleStatisticsHandler;
+    private final List<IAnimalLifeObserver> animalLifeObservers = new ArrayList<>();
 
     public SimulationEngine(AbstractWorldMap map) {
         this(map, SimulationConfig.noOfStartingAnimals);
+    }
+
+    public SimulationEngine(AbstractWorldMap map, SimpleStatisticsHandler statisticsHandler) {
+        this(map, SimulationConfig.noOfStartingAnimals);
+
+        simpleStatisticsHandler = statisticsHandler;
+
+        for (Animal animal : this.animals) {
+            animal.addLifeObserver(simpleStatisticsHandler);
+            animal.addEnergyObserver(simpleStatisticsHandler);
+        }
+        this.map.addGrassObserver(simpleStatisticsHandler);
+        this.addAnimalLifeObserver(statisticsHandler);
+        for (Animal animal : this.animals) {
+            animalCreated(animal);
+        }
     }
 
     public SimulationEngine(AbstractWorldMap map, int noOfStartingAnimals) {
@@ -46,7 +66,6 @@ public class SimulationEngine implements IEngine, Runnable {
     public void run() {
         while(true) {
             makeSimulationStep();
-            System.out.println("asfsdf");
             this.mapRefreshNeeded();
             try {
                 //noinspection BusyWait
@@ -117,6 +136,8 @@ public class SimulationEngine implements IEngine, Runnable {
         }
 
         for (Animal child : children) {
+            animalCreated(child);
+            child.addLifeObserver(simpleStatisticsHandler);
             this.map.place(child);
         }
         this.animals.addAll(children);
@@ -149,4 +170,15 @@ public class SimulationEngine implements IEngine, Runnable {
         }
     }
 
+    public void addAnimalLifeObserver(IAnimalLifeObserver observer) {
+        this.animalLifeObservers.add(observer);
+    }
+    public void removeAnimalLifeObserver(IAnimalLifeObserver observer) {
+        this.animalLifeObservers.remove(observer);
+    }
+    private void animalCreated(Animal animal) {
+        for (var observer : animalLifeObservers) {
+            observer.animalCreated(animal);
+        }
+    }
 }

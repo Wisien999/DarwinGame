@@ -18,7 +18,7 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     protected final Map<Vector2d, NavigableSet<MapAnimalContainer>> animals = new LinkedHashMap<>();
     protected final Boundary jungleBoundary;
     protected final Boundary mapBoundary;
-    protected final List<IGrassActionObserver> grassGrowObservers = new ArrayList<>();
+    protected final List<IGrassActionObserver> grassActionObservers = new ArrayList<>();
 
 
     public AbstractWorldMap(int width, int height, int jungleWidth, int jungleHeight) {
@@ -51,7 +51,7 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
 
         animal.addPositionObserver(this);
         animal.addEnergyObserver(this);
-        animal.addDeathObserver(this);
+        animal.addLifeObserver(this);
     }
 
     private void incrementSlotsTaken(Vector2d position) {
@@ -164,7 +164,7 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
             }
         }
 
-        for (var observer : this.grassGrowObservers) {
+        for (var observer : this.grassActionObservers) {
             observer.grassGrow(noOfGrownGrassTufts);
         }
     }
@@ -174,8 +174,15 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     }
 
     public void removeMapElementAt(Vector2d position) {
-        if (this.map.remove(position) != null) {
+        var obj = this.map.remove(position);
+        if (obj != null) {
             this.decrementSlotsTaken(position);
+
+            if (obj instanceof Grass) {
+                for (var observer : grassActionObservers) {
+                    observer.grassEaten();
+                }
+            }
         }
     }
     public AbstractWorldMapElement getTopWorldMapElementAt(Vector2d position) {
@@ -206,5 +213,22 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     public void animalDied(Animal animal) {
         this.animals.get(animal.getPosition()).remove(new MapAnimalContainer(animal.getEnergy(), animal));
         removeAnimalsEntryIfPossible(animal.getPosition());
+    }
+    public void addGrassObserver(IGrassActionObserver observer) {
+        this.grassActionObservers.add(observer);
+    }
+
+    @Override
+    public void animalCreated(Animal animal) {
+
+    }
+
+    @Override
+    public void animalSuccessfulProcreation(Animal parent1, Animal parent2) {
+
+    }
+
+    public void removeGrassObserver(IGrassActionObserver observer) {
+        this.grassActionObservers.remove(observer);
     }
 }

@@ -4,12 +4,13 @@ import DarwinGame.IEnergyObserver;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.IAnimalLifeObserver;
 import DarwinGame.MapElements.Animal.Genotype;
+import DarwinGame.Simulation.INextDayObserver;
 import DarwinGame.gui.IStatisticsObserver;
 import com.google.common.collect.*;
 
 import java.util.*;
 
-public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActionObserver, IEnergyObserver {
+public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActionObserver, IEnergyObserver, INextDayObserver {
     protected int noOfAliveAnimals = 0;
     protected int noOfGrassTufts = 0;
     protected double averageLifeSpan = 0;
@@ -22,6 +23,7 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
 
     protected List<IStatisticsObserver> statisticsObservers = new ArrayList<>();
+    private int currentDayNumber;
 
     @Override
     public void animalDied(Animal animal) {
@@ -46,7 +48,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         noOfDeadAnimals++;
         lifeSpanSum += animal.getLifeSpan();
         this.averageLifeSpan = lifeSpanSum / noOfDeadAnimals;
-        statisticsChanged();
     }
 
     @Override
@@ -57,7 +58,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
         noOfChildrenSum += 2;
         averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
-        statisticsChanged();
     }
 
     @Override
@@ -70,7 +70,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         energySum -= oldEnergy;
         energySum += newEnergy;
         this.averageEnergy = energySum / noOfAliveAnimals;
-        statisticsChanged();
     }
 
     @Override
@@ -88,19 +87,16 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         noOfAliveAnimals++;
         averageEnergy = energySum / noOfAliveAnimals;
         averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
-        statisticsChanged();
     }
 
     @Override
     public void grassEaten() {
         noOfGrassTufts--;
-        statisticsChanged();
     }
 
     @Override
     public void grassGrow(int noOfTufts) {
         noOfGrassTufts += noOfTufts;
-        statisticsChanged();
     }
 
     private void statisticsChanged() {
@@ -131,11 +127,24 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         }
         return Optional.of(entry.getElement());
     }
+    public double getAverageNoOfChildren() {
+        return averageNoOfChildren;
+    }
+    public int getCurrentDayNumber() {
+        return currentDayNumber;
+    }
 
     public void addStatisticsObserver(IStatisticsObserver observer) {
         this.statisticsObservers.add(observer);
     }
     public void removeStatisticsObserver(IStatisticsObserver observer) {
         this.statisticsObservers.remove(observer);
+    }
+
+
+    @Override
+    public void nextDay(int dayNumber) {
+        currentDayNumber = dayNumber;
+        statisticsChanged();
     }
 }

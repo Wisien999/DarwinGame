@@ -18,74 +18,23 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class GuiWorldMap implements IMapRefreshNeededObserver, IStatisticsObserver {
+public class GuiWorldMap implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
 
     private final GridPane mapGrid = new GridPane();
     private final VBox mapBox = new VBox();
-    private final GridPane statisticsBox = new GridPane();
 
-    private final SimulationController simulationController;
 
     public GuiWorldMap(AbstractWorldMap map) {
         this.map = map;
         this.mapGrid.setGridLinesVisible(true);
 
-        this.simulationController = new SimulationController(map);
-        this.simulationController.getEngine().addMapRefreshNeededObserver(this);
-        this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(this);
-
-        Button startButton = new Button("Start simulation");
-        startButton.setOnAction(e -> {
-            startSimulationButtonFire(startButton);
-        });
-
-        HBox controls = new HBox();
-        controls.getChildren().addAll(startButton);
-
-
         mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
-        mapBox.getChildren().addAll(controls, statisticsBox, mapGrid);
+        mapBox.getChildren().addAll(mapGrid);
 
         renderGrid();
-        renderStatistics();
     }
 
-    private void renderStatistics() {
-        this.statisticsBox.getChildren().clear();
-        this.statisticsBox.addRow(1, new Label("Number of animals alive"),
-                new Label(Integer.toString(simulationController.getSimpleStatisticsHandler().getNoOfAliveAnimals())));
-        this.statisticsBox.addRow(2, new Label("Number of dead animals"),
-                new Label(Integer.toString(simulationController.getSimpleStatisticsHandler().getNoOfDeadAnimals())));
-        this.statisticsBox.addRow(3, new Label("Number of grass tufts"),
-                new Label(Integer.toString(simulationController.getSimpleStatisticsHandler().getNoOfGrassTufts())));
-        this.statisticsBox.addRow(4, new Label("Average energy of alive animals"),
-                new Label(String.format(Locale.ENGLISH, "%.2f", simulationController.getSimpleStatisticsHandler().getAverageEnergy())));
-        this.statisticsBox.addRow(5, new Label("Average life span of dead animals"),
-                new Label(String.format(Locale.ENGLISH, "%.2f", simulationController.getSimpleStatisticsHandler().getAverageLifeSpan())));
-        var dominantGenotype = simulationController.getSimpleStatisticsHandler().getDominantGenotype();
-        dominantGenotype.ifPresent(genotype -> this.statisticsBox.addRow(6, new Label("Dominant of genotypes"),
-                new Label(genotype.toString())));
-    }
-
-
-    private void startSimulationButtonFire(Button button) {
-        simulationController.startSimulation();
-
-        button.setText("Stop simulation");
-        button.setOnAction(e -> {
-            stopSimulationButtonFire(button);
-        });
-    }
-
-    private void stopSimulationButtonFire(Button button) {
-        simulationController.stopSimulation();
-
-        button.setText("Start simulation");
-        button.setOnAction(e -> {
-            startSimulationButtonFire(button);
-        });
-    }
 
     public VBox getMapBox() {
         return mapBox;
@@ -155,8 +104,4 @@ public class GuiWorldMap implements IMapRefreshNeededObserver, IStatisticsObserv
         }
     }
 
-    @Override
-    public void refreshStatistic() {
-        Platform.runLater(this::renderStatistics);
-    }
 }

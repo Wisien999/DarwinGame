@@ -13,6 +13,7 @@ public class SimulationController {
 
     public SimulationController(AbstractWorldMap map) {
         this.engine = new SimulationEngine(map, simpleStatisticsHandler);
+        this.engine.addNextDayObserver(simpleStatisticsHandler);
     }
 
     public void startSimulation() {
@@ -21,6 +22,9 @@ public class SimulationController {
     }
 
     public void stopSimulation() {
+        if (this.engineThread == null) {
+            return;
+        }
         this.engineThread.interrupt();
     }
 

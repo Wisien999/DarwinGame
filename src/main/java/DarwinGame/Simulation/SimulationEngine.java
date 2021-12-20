@@ -21,6 +21,8 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<IMapRefreshNeededObserver> mapRefreshNeededObservers = new ArrayList<>();
     private SimpleStatisticsHandler simpleStatisticsHandler;
     private final List<IAnimalLifeObserver> animalLifeObservers = new ArrayList<>();
+    private final List<INextDayObserver> nextDayObservers = new ArrayList<>();
+    private int dayNumber = 0;
 
     public SimulationEngine(AbstractWorldMap map) {
         this(map, SimulationConfig.noOfStartingAnimals);
@@ -66,6 +68,7 @@ public class SimulationEngine implements IEngine, Runnable {
     public void run() {
         while(true) {
             makeSimulationStep();
+            this.nextDay();
             this.mapRefreshNeeded();
             try {
                 //noinspection BusyWait
@@ -176,9 +179,21 @@ public class SimulationEngine implements IEngine, Runnable {
     public void removeAnimalLifeObserver(IAnimalLifeObserver observer) {
         this.animalLifeObservers.remove(observer);
     }
+    public void addNextDayObserver(INextDayObserver observer) {
+        this.nextDayObservers.add(observer);
+    }
+    public void removeNextDayObserver(INextDayObserver observer) {
+        this.nextDayObservers.remove(observer);
+    }
     private void animalCreated(Animal animal) {
         for (var observer : animalLifeObservers) {
             observer.animalCreated(animal);
+        }
+    }
+    private void nextDay() {
+        dayNumber++;
+        for (var observer : this.nextDayObservers) {
+            observer.nextDay(dayNumber);
         }
     }
 }

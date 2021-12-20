@@ -24,12 +24,15 @@ public class App extends Application {
     GuiWorldMap unboundedWorldMapGuiElement;
     Stage primaryStage;
 
+    SimulationStage boundedWorldMapSimulationStage;
+    SimulationStage unboundedWorldMapSimulationStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         this.primaryStage.setOnCloseRequest(e -> {
-            Platform.exit();
-            System.exit(0);
+//            Platform.exit();
+//            System.exit(0);
         });
 
         Scene configScene = createConfigScene();
@@ -85,13 +88,17 @@ public class App extends Application {
             SimulationConfig.noOfStartingAnimals = noOfPrimaryAnimalsTextBox.getNumber().intValue();
 
 
+            boundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
+            unboundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
 
-            BoundedWorldMap boundedWorldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-            UnboundedWorldMap unboundedWorldMap = new UnboundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-            this.boundedWorldMapGuiElement = new GuiWorldMap(boundedWorldMap);
-            this.unboundedWorldMapGuiElement = new GuiWorldMap(unboundedWorldMap);
 
-            this.primaryStage.setScene(createSimulationScene());
+
+//            BoundedWorldMap boundedWorldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
+//            UnboundedWorldMap unboundedWorldMap = new UnboundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
+//            this.boundedWorldMapGuiElement = new GuiWorldMap(boundedWorldMap);
+//            this.unboundedWorldMapGuiElement = new GuiWorldMap(unboundedWorldMap);
+//
+//            this.primaryStage.setScene(createSimulationScene());
         });
 
 

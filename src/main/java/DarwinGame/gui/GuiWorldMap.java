@@ -1,22 +1,15 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.AbstractWorldMapElement;
-import DarwinGame.MapElements.Animal.Animal;
-import DarwinGame.MapElements.Animal.Genotype;
-import DarwinGame.Simulation.SimulationController;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
+import javafx.stage.Stage;
 
 public class GuiWorldMap implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
@@ -24,8 +17,11 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
     private final GridPane mapGrid = new GridPane();
     private final VBox mapBox = new VBox();
 
+    private final Stage parentStage;
 
-    public GuiWorldMap(AbstractWorldMap map) {
+
+    public GuiWorldMap(AbstractWorldMap map, Stage parentStage) {
+        this.parentStage = parentStage;
         this.map = map;
         this.mapGrid.setGridLinesVisible(true);
 
@@ -88,14 +84,9 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
 
                 if (map.isOccupied(position)) {
                     AbstractWorldMapElement worldMapElement = map.getTopWorldMapElementAt(position);
-                    GuiMapElementBox element = new GuiMapElementBox(worldMapElement);
-                    VBox graphicalElement = element.getGraphicalElement();
-                    cellBox.getChildren().add(graphicalElement);
-                    if (element.mapElement instanceof Animal animal) {
-                        Label energyLabel = new Label(Integer.toString(animal.getEnergy()));
-                        energyLabel.setTextFill(Color.WHITE);
-                        cellBox.getChildren().add(energyLabel);
-                    }
+                    GuiMapElement element = new GuiMapElement(worldMapElement);
+                    element.addGuiWorldMapElementClickObservers((IGuiWorldMapElementClickObserver) parentStage);
+                    cellBox.getChildren().add(element);
                 }
 
                 GridPane.setHalignment(cellBox, HPos.CENTER);

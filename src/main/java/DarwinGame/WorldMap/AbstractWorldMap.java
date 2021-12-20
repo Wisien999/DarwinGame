@@ -1,6 +1,6 @@
 package DarwinGame.WorldMap;
 
-import DarwinGame.IAnimalLifeObserver;
+import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.IEnergyObserver;
 import DarwinGame.IPositionChangeObserver;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;

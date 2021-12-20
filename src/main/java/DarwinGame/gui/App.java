@@ -90,15 +90,9 @@ public class App extends Application {
 
             boundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
             unboundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-
-
-
-//            BoundedWorldMap boundedWorldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-//            UnboundedWorldMap unboundedWorldMap = new UnboundedWorldMap(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-//            this.boundedWorldMapGuiElement = new GuiWorldMap(boundedWorldMap);
-//            this.unboundedWorldMapGuiElement = new GuiWorldMap(unboundedWorldMap);
-//
-//            this.primaryStage.setScene(createSimulationScene());
+            boundedWorldMapSimulationStage.setTitle("Bounded World");
+            unboundedWorldMapSimulationStage.setTitle("Unbounded World");
+            primaryStage.close();
         });
 
 

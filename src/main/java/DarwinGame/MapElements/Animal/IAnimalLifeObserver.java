@@ -1,4 +1,4 @@
-package DarwinGame;
+package DarwinGame.MapElements.Animal;
 
 import DarwinGame.MapElements.Animal.Animal;
 

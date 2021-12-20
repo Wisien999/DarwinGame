@@ -2,7 +2,7 @@ package DarwinGame.Statistics;
 
 import DarwinGame.IEnergyObserver;
 import DarwinGame.MapElements.Animal.Animal;
-import DarwinGame.IAnimalLifeObserver;
+import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.MapElements.Animal.Genotype;
 import DarwinGame.Simulation.INextDayObserver;
 import DarwinGame.gui.IStatisticsObserver;
@@ -27,12 +27,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void animalDied(Animal animal) {
-        System.out.print("\nAnimal died ");
-        System.out.print(animal.id);
-        System.out.print("   ");
-        System.out.println(animal.getEnergy());
-        System.out.println("---------------");
-
         var genotypeAnimals = genotypesAnimals.get(animal.getGenotype());
         genotypeAnimals.remove(animal);
         if (genotypeAnimals.isEmpty()) {
@@ -58,7 +52,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void animalSuccessfulProcreation(Animal parent1, Animal parent2) {
-        System.out.println("Animal procreation");
         int oldNoOfChildren1 = animalChildrenCounter.getOrDefault(parent1, 0);
         int oldNoOfChildren2 = animalChildrenCounter.getOrDefault(parent2, 0);
 
@@ -69,15 +62,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
-//        if (newEnergy <= 0) {
-//            return;
-//        }
-        System.out.println("\nAnimal energy changed");
-        System.out.print(animal.id);
-        System.out.print("   ");
-        System.out.println(animal.getEnergy());
-        System.out.println("---------------");
-
         double energySum = averageEnergy * noOfAliveAnimals;
         energySum -= oldEnergy;
         energySum += newEnergy;
@@ -86,7 +70,6 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void animalCreated(Animal animal) {
-        System.out.println("ANIMAL CREATED");
         genotypesAnimals.putIfAbsent(animal.getGenotype(), new HashSet<>());
         genotypesAnimals.get(animal.getGenotype()).add(animal);
         sortedGenotypes.add(animal.getGenotype());

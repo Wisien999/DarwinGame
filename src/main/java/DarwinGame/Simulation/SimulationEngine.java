@@ -1,6 +1,6 @@
 package DarwinGame.Simulation;
 
-import DarwinGame.IAnimalLifeObserver;
+import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Animal.AnimalStatus;

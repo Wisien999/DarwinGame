@@ -1,30 +1,36 @@
 package DarwinGame.gui;
 
+import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Simulation.SimulationController;
 import DarwinGame.WorldMap.BoundedWorldMap;
-import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-import java.util.LinkedList;
-import java.util.Locale;
 
-public class SimulationStage extends Stage {
-    GuiWorldMap worldMapGuiElement;
-
+public class SimulationStage extends Stage implements IGuiWorldMapElementClickObserver {
+    private final GuiWorldMap worldMapGuiElement;
     private final StatisticsBox statisticsBox;
+
+    private final Popup popup = new Popup();
 
     private final SimulationController simulationController;
 
+
+
     public SimulationStage(int mapWidth, int mapHeight, int jungleWidth, int jungleHeight) {
         BoundedWorldMap worldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleWidth, jungleHeight);
-        worldMapGuiElement = new GuiWorldMap(worldMap);
+        worldMapGuiElement = new GuiWorldMap(worldMap, this);
         this.simulationController = new SimulationController(worldMap);
         this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
         statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler());
@@ -76,5 +82,33 @@ public class SimulationStage extends Stage {
         });
     }
 
+    private void showPopUp(String title, String message) {
+        VBox layout = new VBox();
+        Label titleLabel = new Label(title);
+        titleLabel.setFont(Font.font(25d));
+        Label genotype = new Label(message);
 
+        layout.setAlignment(Pos.CENTER);
+        layout.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
+        layout.getChildren().addAll(titleLabel, genotype);
+
+        popup.setAutoHide(true);
+        popup.getContent().clear();
+        popup.getContent().add(layout);
+        popup.show(this);
+    }
+
+    @Override
+    public void guiWorldMapElementClicked(GuiMapElement guiMapElement, MouseEvent event) {
+        if (popup.isShowing()) {
+            return;
+        }
+
+        if (guiMapElement.mapElement instanceof Animal animal) {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                showPopUp("Genotype of the clicked animal", animal.getGenotype().toString());
+            }
+        }
+
+    }
 }

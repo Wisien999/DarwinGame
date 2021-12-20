@@ -38,7 +38,7 @@ public class SimulationEngine implements IEngine, Runnable {
             animal.addEnergyObserver(simpleStatisticsHandler);
         }
         this.map.addGrassObserver(simpleStatisticsHandler);
-        this.addAnimalLifeObserver(statisticsHandler);
+        this.addAnimalLifeObserver(simpleStatisticsHandler);
         for (Animal animal : this.animals) {
             animalCreated(animal);
         }
@@ -141,6 +141,7 @@ public class SimulationEngine implements IEngine, Runnable {
         for (Animal child : children) {
             animalCreated(child);
             child.addLifeObserver(simpleStatisticsHandler);
+            child.addEnergyObserver(simpleStatisticsHandler);
             this.map.place(child);
         }
         this.animals.addAll(children);

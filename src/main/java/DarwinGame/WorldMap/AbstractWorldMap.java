@@ -74,7 +74,6 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     @Override
     public boolean positionChanged(AbstractMovableWorldMapElement worldMapElement, Vector2d oldPosition, Vector2d newPosition) {
         if (worldMapElement instanceof Animal animal) {
-            System.out.println(animal.getPosition());
             MapAnimalContainer mapAnimalContainer = new MapAnimalContainer(animal.getEnergy(), animal);
             this.animals.get(oldPosition).remove(mapAnimalContainer);
             removeAnimalsEntryIfPossible(oldPosition);
@@ -98,7 +97,6 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     @Override
     public void energyChanged(Animal animal, int oldEnergy, int newEnergy) {
         MapAnimalContainer oldMapAnimalContainer = new MapAnimalContainer(oldEnergy, animal);
-        System.out.println(animal.toString());
         var positionSet = this.animals.get(animal.getPosition());
         positionSet.remove(oldMapAnimalContainer);
 

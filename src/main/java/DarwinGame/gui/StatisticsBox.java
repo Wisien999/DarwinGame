@@ -52,6 +52,7 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
         chart.setTitle(title);
         chart.setAnimated(true);
         chart.setCreateSymbols(false);
+        chart.setLegendVisible(false);
 
         chart.getData().add(dataSeries);
 

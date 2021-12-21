@@ -88,8 +88,8 @@ public class App extends Application {
             SimulationConfig.noOfStartingAnimals = noOfPrimaryAnimalsTextBox.getNumber().intValue();
 
 
-            boundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
-            unboundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue());
+            boundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue(), true);
+            unboundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue(), false);
             boundedWorldMapSimulationStage.setTitle("Bounded World");
             unboundedWorldMapSimulationStage.setTitle("Unbounded World");
             primaryStage.close();

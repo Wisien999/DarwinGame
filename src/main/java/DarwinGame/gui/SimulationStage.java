@@ -2,9 +2,12 @@ package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Simulation.SimulationController;
+import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.BoundedWorldMap;
+import DarwinGame.WorldMap.UnboundedWorldMap;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,9 +15,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 
@@ -27,22 +30,37 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
     private final SimulationController simulationController;
 
 
+    public SimulationStage(int mapWidth, int mapHeight, int jungleWidth, int jungleHeight, boolean bounded) {
+        AbstractWorldMap worldMap;
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        if (bounded) {
+            worldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleWidth, jungleHeight);
 
-    public SimulationStage(int mapWidth, int mapHeight, int jungleWidth, int jungleHeight) {
-        BoundedWorldMap worldMap = new BoundedWorldMap(mapWidth, mapHeight, jungleWidth, jungleHeight);
+            this.setX(bounds.getMinX() + bounds.getWidth()/2);
+        }
+        else {
+            worldMap = new UnboundedWorldMap(mapWidth, mapHeight, jungleWidth, jungleHeight);
+
+            this.setX(bounds.getMinX());
+        }
+
+
         worldMapGuiElement = new GuiWorldMap(worldMap, this);
         this.simulationController = new SimulationController(worldMap);
         this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
-        statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler());
+        statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler(), this);
         this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(statisticsBox);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        HBox.setHgrow(statisticsBox, Priority.ALWAYS);
+
         HBox layout = new HBox();
         VBox rightBox = new VBox();
-        HBox controls = new HBox();
-        rightBox.getChildren().addAll(controls, statisticsBox);
+        HBox simulationControls = new HBox();
+        rightBox.getChildren().addAll(simulationControls, statisticsBox);
 
 
         this.setOnCloseRequest(e -> this.simulationController.stopSimulation());
@@ -52,15 +70,15 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
             startSimulationButtonFire(startButton);
         });
 
-        controls.getChildren().addAll(startButton);
+        simulationControls.getChildren().addAll(startButton);
 
         layout.getChildren().addAll(worldMapGuiElement.getMapBox(), spacer, rightBox);
 
-        this.setScene(new Scene(layout, 1000, 600));
+        this.setY(bounds.getMinY());
+        this.setScene(new Scene(layout, bounds.getWidth()/2, bounds.getHeight()));
+//        this.setMaximized(true);
         this.show();
     }
-
-
 
 
     private void startSimulationButtonFire(Button button) {

@@ -8,8 +8,8 @@ public class SimulationController {
     private final SimpleStatisticsHandler simpleStatisticsHandler = new SimpleStatisticsHandler();
     private final SimulationEngine engine;
 
-
     private Thread engineThread;
+
 
     public SimulationController(AbstractWorldMap map) {
         this.engine = new SimulationEngine(map, simpleStatisticsHandler);
@@ -22,7 +22,7 @@ public class SimulationController {
     }
 
     public void stopSimulation() {
-        if (this.engineThread == null) {
+        if (!this.isRunning()) {
             return;
         }
         this.engineThread.interrupt();
@@ -34,5 +34,11 @@ public class SimulationController {
 
     public SimulationEngine getEngine() {
         return engine;
+    }
+    public boolean isRunning() {
+        if (this.engineThread == null) {
+            return false;
+        }
+        return this.engineThread.isAlive();
     }
 }

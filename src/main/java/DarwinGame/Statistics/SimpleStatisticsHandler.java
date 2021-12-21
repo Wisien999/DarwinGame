@@ -21,6 +21,11 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
     protected Map<Genotype, Set<Animal>> genotypesAnimals = new HashMap<>();
     SortedMultiset<Genotype> sortedGenotypes = TreeMultiset.create(new GenotypeCountComparator(genotypesAnimals));
 
+    protected List<Integer> aliveAnimalsHistory = new ArrayList<>();
+    protected List<Integer> grassTuftsHistory = new ArrayList<>();
+    protected List<Double> averageLifeSpanHistory = new ArrayList<>();
+    protected List<Double> averageEnergyHistory = new ArrayList<>();
+    protected List<Double> averageNoOfChildrenHistory = new ArrayList<>();
 
     protected List<IStatisticsObserver> statisticsObservers = new ArrayList<>();
     private int currentDayNumber;
@@ -139,7 +144,29 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void nextDay(int dayNumber) {
+        averageEnergyHistory.add(averageEnergy);
+        averageNoOfChildrenHistory.add(averageNoOfChildren);
+        averageLifeSpanHistory.add(averageLifeSpan);
+        aliveAnimalsHistory.add(noOfAliveAnimals);
+        grassTuftsHistory.add(noOfGrassTufts);
+
         currentDayNumber = dayNumber;
         statisticsChanged();
+    }
+
+    public List<Integer> getAliveAnimalsHistory() {
+        return aliveAnimalsHistory;
+    }
+    public List<Integer> getGrassTuftsHistory() {
+        return grassTuftsHistory;
+    }
+    public List<Double> getAverageLifeSpanHistory() {
+        return averageLifeSpanHistory;
+    }
+    public List<Double> getAverageEnergyHistory() {
+        return averageEnergyHistory;
+    }
+    public List<Double> getAverageNoOfChildrenHistory() {
+        return averageNoOfChildrenHistory;
     }
 }

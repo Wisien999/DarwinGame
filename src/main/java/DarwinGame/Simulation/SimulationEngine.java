@@ -9,6 +9,7 @@ import DarwinGame.Statistics.SimpleStatisticsHandler;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.Boundary;
+import DarwinGame.WorldMap.MapAnimalContainer;
 import DarwinGame.gui.IMapRefreshNeededObserver;
 
 import java.util.*;
@@ -105,7 +106,8 @@ public class SimulationEngine implements IEngine, Runnable {
                 if (animal.getEnergy() != theStrongestAnimal.animalEnergy()) {
                     continue;
                 }
-                int noOfTheStrongestAnimals = animals.tailSet(theStrongestAnimal).size();
+                var limitAnimal = new MapAnimalContainer(theStrongestAnimal.animalEnergy(), null);
+                int noOfTheStrongestAnimals = animals.tailSet(limitAnimal).size();
                 animal.feed(SimulationConfig.plantEnergy / noOfTheStrongestAnimals);
             }
         }

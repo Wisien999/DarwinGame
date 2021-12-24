@@ -6,6 +6,12 @@ public record MapAnimalContainer(int animalEnergy, Animal animal) implements Com
 
     @Override
     public int compareTo(MapAnimalContainer o) {
+        if (o.animal() == null) {
+            return 1;
+        }
+        if (this.animal() == null) {
+            return -1;
+        }
         if (this.animalEnergy() == o.animalEnergy()) {
             return this.animal().id - o.animal().id;
         }

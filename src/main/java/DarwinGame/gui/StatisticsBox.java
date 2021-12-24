@@ -1,5 +1,6 @@
 package DarwinGame.gui;
 
+import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Statistics.SimpleStatisticsHandler;
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -17,7 +18,9 @@ import org.apache.commons.csv.CSVPrinter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class StatisticsBox extends VBox implements IStatisticsObserver {
     private final GridPane simpleStatisticsGrid = new GridPane();
@@ -28,12 +31,13 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
     XYChart.Series<Number, Number> averageLifespanSeries = new XYChart.Series<>();
     XYChart.Series<Number, Number> averageChildrenCountSeries = new XYChart.Series<>();
 
-    private final Button saveToFileButton = new Button();
+    private final HBox buttons = new HBox();
 
-    public StatisticsBox(SimpleStatisticsHandler simpleStatisticsHandler, Stage parentStage) {
+    public StatisticsBox(SimpleStatisticsHandler simpleStatisticsHandler, SimulationStage parentStage) {
         super();
         this.simpleStatisticsHandler = simpleStatisticsHandler;
 
+        Button saveToFileButton = new Button();
         saveToFileButton.setText("save statistics to file");
         saveToFileButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
@@ -53,10 +57,20 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
             }
         });
 
+        Button markDominantGenotypeAnimalsButton = new Button("Mark animals with dominant genotype");
+        markDominantGenotypeAnimalsButton.setOnAction(event -> {
+            var dominantGenotypeAnimals = simpleStatisticsHandler.getAnimalsOfDominantGenotype();
+
+            var positionSet = dominantGenotypeAnimals.stream().map(Animal::getPosition).collect(Collectors.toUnmodifiableSet());
+
+            parentStage.highlightGuiWorldMapCells(positionSet);
+        });
+
         GridPane charts = new GridPane();
         ScrollPane chartsContainer = new ScrollPane();
         chartsContainer.setContent(charts);
-        this.getChildren().addAll(saveToFileButton, simpleStatisticsGrid, chartsContainer);
+        buttons.getChildren().addAll(saveToFileButton, markDominantGenotypeAnimalsButton);
+        this.getChildren().addAll(buttons, simpleStatisticsGrid, chartsContainer);
 
         var aliveAnimalsLineChart = createLineChart("Alive animals", "Number of animals alive", noOfAliveAnimalsSeries);
         var grassTuftsLineChart = createLineChart("Grass tufts", "Number of grass tufts on the map", grassTuftsSeries);
@@ -146,7 +160,6 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
 
 
     private void saveStatisticsToFile(File file) {
-        System.out.println(file.getAbsolutePath());
         try {
             FileWriter out = new FileWriter(file);
 //            var builder = CSVFormat.DEFAULT.builder().setHeader("Day number", "Number of alive animals", "Number of grass tufts", "Average energy of alive animals", "Average lifespan of dead animals", "Average number of children of alive animals");

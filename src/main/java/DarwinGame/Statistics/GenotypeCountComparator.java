@@ -14,6 +14,8 @@ public class GenotypeCountComparator implements Comparator<Genotype> {
 
     @Override
     public int compare(Genotype o1, Genotype o2) {
+        System.out.print("genotype ocmaprator animals:");
+        System.out.println(genotypeAnimals);
         return genotypeAnimals.getOrDefault(o1, new HashSet<>()).size() - genotypeAnimals.getOrDefault(o2, new HashSet<>()).size();
     }
 }

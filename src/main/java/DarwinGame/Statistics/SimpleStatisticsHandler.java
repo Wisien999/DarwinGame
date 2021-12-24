@@ -5,9 +5,11 @@ import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.MapElements.Animal.Genotype;
 import DarwinGame.Simulation.INextDayObserver;
+import DarwinGame.Vector2d;
 import DarwinGame.gui.IStatisticsObserver;
-import com.google.common.collect.*;
+import com.sun.javafx.sg.prism.DirtyHint;
 
+import java.net.InterfaceAddress;
 import java.util.*;
 
 public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActionObserver, IEnergyObserver, INextDayObserver {
@@ -18,8 +20,8 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
     protected double averageEnergy = 0;
     protected Map<Animal, Integer> animalChildrenCounter = new HashMap<>();
     protected double averageNoOfChildren = 0;
-    protected Map<Genotype, Set<Animal>> genotypesAnimals = new HashMap<>();
-    SortedMultiset<Genotype> sortedGenotypes = TreeMultiset.create(new GenotypeCountComparator(genotypesAnimals));
+    protected Map<Genotype, HashSet<Animal>> genotypesAnimals = new HashMap<>();
+    protected SortedMap<Integer, HashSet<Genotype>> sortedGenotypes = new TreeMap<>();
 
     protected List<Integer> aliveAnimalsHistory = new ArrayList<>();
     protected List<Integer> grassTuftsHistory = new ArrayList<>();
@@ -32,12 +34,23 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void animalDied(Animal animal) {
+        Integer animalGenotypeCount = genotypesAnimals.get(animal.getGenotype()).size();
+        var countSet = sortedGenotypes.get(animalGenotypeCount);
+        countSet.remove(animal.getGenotype());
+        if (countSet.isEmpty()) {
+            sortedGenotypes.remove(animalGenotypeCount);
+        }
+        animalGenotypeCount--;
+        if (animalGenotypeCount > 0) {
+            sortedGenotypes.putIfAbsent(animalGenotypeCount, new HashSet<>());
+            sortedGenotypes.get(animalGenotypeCount).add(animal.getGenotype());
+        }
+
         var genotypeAnimals = genotypesAnimals.get(animal.getGenotype());
         genotypeAnimals.remove(animal);
         if (genotypeAnimals.isEmpty()) {
             genotypesAnimals.remove(animal.getGenotype());
         }
-        sortedGenotypes.remove(animal.getGenotype());
         double energySum = averageEnergy * noOfAliveAnimals;
         energySum -= animal.getEnergy();
 
@@ -75,9 +88,23 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
 
     @Override
     public void animalCreated(Animal animal) {
+        Integer animalGenotypeCount = 0;
+        if (genotypesAnimals.containsKey(animal.getGenotype())) {
+            animalGenotypeCount = genotypesAnimals.get(animal.getGenotype()).size();
+            sortedGenotypes.getOrDefault(animalGenotypeCount, new HashSet<>()).remove(animal.getGenotype());
+            if (sortedGenotypes.getOrDefault(animalGenotypeCount, new HashSet<>()).isEmpty()) {
+                sortedGenotypes.remove(animalGenotypeCount);
+            }
+        }
+
         genotypesAnimals.putIfAbsent(animal.getGenotype(), new HashSet<>());
         genotypesAnimals.get(animal.getGenotype()).add(animal);
-        sortedGenotypes.add(animal.getGenotype());
+
+
+        animalGenotypeCount++;
+        sortedGenotypes.putIfAbsent(animalGenotypeCount, new HashSet<>());
+        sortedGenotypes.get(animalGenotypeCount).add(animal.getGenotype());
+
 
         double energySum = averageEnergy * noOfAliveAnimals;
         double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
@@ -121,17 +148,28 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
         return averageEnergy;
     }
     public Optional<Genotype> getDominantGenotype() {
-        var entry = this.sortedGenotypes.lastEntry();
-        if (entry == null) {
+        if (sortedGenotypes.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(entry.getElement());
+        Integer maxGenotypeCount = sortedGenotypes.lastKey();
+        return sortedGenotypes.get(maxGenotypeCount).stream().findFirst();
     }
     public double getAverageNoOfChildren() {
         return averageNoOfChildren;
     }
     public int getCurrentDayNumber() {
         return currentDayNumber;
+    }
+    public Set<Animal> getAnimalsOfDominantGenotype() {
+        if (sortedGenotypes.isEmpty()) {
+            return new HashSet<>();
+        }
+        Integer maxGenotypeCount = sortedGenotypes.lastKey();
+        var dominantGenotype = sortedGenotypes.get(maxGenotypeCount).stream().findFirst();
+        if (dominantGenotype.isEmpty()) {
+            return new HashSet<>();
+        }
+        return genotypesAnimals.get(dominantGenotype.get());
     }
 
     public void addStatisticsObserver(IStatisticsObserver observer) {

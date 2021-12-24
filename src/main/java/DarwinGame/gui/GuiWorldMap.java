@@ -1,21 +1,30 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.AbstractWorldMapElement;
+import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class GuiWorldMap implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
 
     private final GridPane mapGrid = new GridPane();
     private final VBox mapBox = new VBox();
+
+    private Vector2d displayedUpperRight;
+    private Vector2d displayedLowerLeft;
 
     private final Stage parentStage;
 
@@ -41,14 +50,47 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
         Platform.runLater(this::renderGrid);
     }
 
-    void renderGrid() {
+    public void highlightCells(Set<Vector2d> positions) {
+
+        for (Node node : mapGrid.getChildren()) {
+            int gridX = GridPane.getColumnIndex(node);
+            int gridY= GridPane.getRowIndex(node);
+
+            if (positions.contains(getRealPosition(new Vector2d(gridX, gridY)))) {
+                StackPane cell = (StackPane) node;
+
+                cell.setBorder(new Border(new BorderStroke(
+                        Color.RED, BorderStrokeStyle.SOLID, new CornerRadii(2d), BorderWidths.DEFAULT)));
+            }
+
+        }
+    }
+
+    private Vector2d getRealPosition(Vector2d gridPosition) {
+        int x = gridPosition.x() - 1 + displayedLowerLeft.x();
+        int y = displayedUpperRight.y() - gridPosition.y() + 1;
+
+        return new Vector2d(x, y);
+    }
+
+    private Vector2d getGridPosition(Vector2d mapPosition) {
+        int x = mapPosition.x() - displayedLowerLeft.x() + 1;
+        int y = displayedUpperRight.y() - mapPosition.y() + 1;
+
+        return new Vector2d(x, y);
+    }
+
+    protected void renderGrid() {
         mapGrid.getColumnConstraints().clear();
         mapGrid.getRowConstraints().clear();
 
-        int minY = map.getLowerLeftDrawLimit().y();
-        int minX = map.getLowerLeftDrawLimit().x();
-        int maxY = map.getUpperRightDrawLimit().y();
-        int maxX = map.getUpperRightDrawLimit().x();
+        displayedUpperRight = map.getUpperRightDrawLimit();
+        displayedLowerLeft = map.getLowerLeftDrawLimit();
+
+        int minY = displayedLowerLeft.y();
+        int minX = displayedLowerLeft.x();
+        int maxY = displayedUpperRight.y();
+        int maxX = displayedUpperRight.x();
 
         this.mapGrid.getChildren().clear();
         mapGrid.setGridLinesVisible(true);
@@ -90,7 +132,8 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
                 }
 
                 GridPane.setHalignment(cellBox, HPos.CENTER);
-                this.mapGrid.add(cellBox, position.x() - minX + 1, maxY - position.y() + 1, 1, 1);
+                Vector2d gridPosition = getGridPosition(position);
+                this.mapGrid.add(cellBox, gridPosition.x(), gridPosition.y(), 1, 1);
             }
         }
     }

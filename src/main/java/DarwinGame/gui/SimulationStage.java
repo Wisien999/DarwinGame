@@ -2,6 +2,7 @@ package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Simulation.SimulationController;
+import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.BoundedWorldMap;
 import DarwinGame.WorldMap.UnboundedWorldMap;
@@ -19,6 +20,9 @@ import javafx.scene.text.Font;
 import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.util.List;
+import java.util.Set;
 
 
 public class SimulationStage extends Stage implements IGuiWorldMapElementClickObserver {
@@ -114,6 +118,10 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         popup.getContent().clear();
         popup.getContent().add(layout);
         popup.show(this);
+    }
+
+    public void highlightGuiWorldMapCells(Set<Vector2d> worldMapPositions) {
+        worldMapGuiElement.highlightCells(worldMapPositions);
     }
 
     @Override

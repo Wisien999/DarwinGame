@@ -6,6 +6,7 @@ import com.google.common.collect.Comparators;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,5 +56,17 @@ public class Genotype implements Comparable<Genotype> {
         return stringBuilder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Genotype genotype = (Genotype) o;
+        return genes.equals(genotype.genes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(genes);
+    }
 }
 

@@ -1,8 +1,8 @@
 package DarwinGame.WorldMap;
 
 import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
-import DarwinGame.IEnergyObserver;
-import DarwinGame.IPositionChangeObserver;
+import DarwinGame.MapElements.Animal.IEnergyObserver;
+import DarwinGame.MapElements.Animal.IPositionChangeObserver;
 import DarwinGame.MapElements.AbstractMovableWorldMapElement;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
@@ -197,6 +197,12 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
     public Boundary getMapBoundary() {
         return mapBoundary;
     }
+
+    @Override
+    public void animalBecameParent(Animal parent, Animal child) {
+
+    }
+
     public abstract boolean canMoveTo(Vector2d position);
     public abstract Vector2d correctMovePosition(Vector2d oldPosition, Vector2d newPosition);
     public Vector2d getLowerLeftDrawLimit() {
@@ -218,11 +224,6 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
 
     @Override
     public void animalCreated(Animal animal) {
-
-    }
-
-    @Override
-    public void animalSuccessfulProcreation(Animal parent1, Animal parent2) {
 
     }
 

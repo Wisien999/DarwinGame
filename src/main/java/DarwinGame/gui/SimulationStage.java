@@ -55,6 +55,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
         statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler(), this);
         this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(statisticsBox);
+        this.simulationController.addSimulationObserver(statisticsBox);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

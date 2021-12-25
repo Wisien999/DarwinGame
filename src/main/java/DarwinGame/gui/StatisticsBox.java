@@ -1,6 +1,7 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
+import DarwinGame.Simulation.ISimulationObserver;
 import DarwinGame.Statistics.SimpleStatisticsHandler;
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -22,7 +23,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class StatisticsBox extends VBox implements IStatisticsObserver {
+public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulationObserver {
     private final GridPane simpleStatisticsGrid = new GridPane();
     private final SimpleStatisticsHandler simpleStatisticsHandler;
     XYChart.Series<Number, Number> noOfAliveAnimalsSeries = new XYChart.Series<>();
@@ -70,6 +71,7 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
         ScrollPane chartsContainer = new ScrollPane();
         chartsContainer.setContent(charts);
         buttons.getChildren().addAll(saveToFileButton, markDominantGenotypeAnimalsButton);
+        buttons.setVisible(false);
         this.getChildren().addAll(buttons, simpleStatisticsGrid, chartsContainer);
 
         var aliveAnimalsLineChart = createLineChart("Alive animals", "Number of animals alive", noOfAliveAnimalsSeries);
@@ -192,5 +194,18 @@ public class StatisticsBox extends VBox implements IStatisticsObserver {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void simulationStarted() {
+        buttons.setVisible(true);
+
+
+    }
+
+    @Override
+    public void simulationStopped() {
+        buttons.setVisible(false);
+
     }
 }

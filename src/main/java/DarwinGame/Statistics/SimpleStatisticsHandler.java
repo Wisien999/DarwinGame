@@ -1,15 +1,12 @@
 package DarwinGame.Statistics;
 
-import DarwinGame.IEnergyObserver;
+import DarwinGame.MapElements.Animal.IEnergyObserver;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.MapElements.Animal.Genotype;
 import DarwinGame.Simulation.INextDayObserver;
-import DarwinGame.Vector2d;
 import DarwinGame.gui.IStatisticsObserver;
-import com.sun.javafx.sg.prism.DirtyHint;
 
-import java.net.InterfaceAddress;
 import java.util.*;
 
 public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActionObserver, IEnergyObserver, INextDayObserver {
@@ -69,12 +66,11 @@ public class SimpleStatisticsHandler implements IAnimalLifeObserver, IGrassActio
     }
 
     @Override
-    public void animalSuccessfulProcreation(Animal parent1, Animal parent2) {
-        int oldNoOfChildren1 = animalChildrenCounter.getOrDefault(parent1, 0);
-        int oldNoOfChildren2 = animalChildrenCounter.getOrDefault(parent2, 0);
+    public void animalBecameParent(Animal parent, Animal child) {
+        animalChildrenCounter.merge(parent, 1, Integer::sum);
 
         double noOfChildrenSum = averageNoOfChildren * noOfAliveAnimals;
-        noOfChildrenSum += 2;
+        noOfChildrenSum++;
         averageNoOfChildren = noOfChildrenSum / noOfAliveAnimals;
     }
 

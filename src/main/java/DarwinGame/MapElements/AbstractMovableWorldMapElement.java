@@ -1,6 +1,6 @@
 package DarwinGame.MapElements;
 
-import DarwinGame.IPositionChangeObserver;
+import DarwinGame.MapElements.Animal.IPositionChangeObserver;
 import DarwinGame.MoveDirection;
 import DarwinGame.Vector2d;
 

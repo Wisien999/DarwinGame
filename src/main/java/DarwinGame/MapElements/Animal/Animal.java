@@ -108,10 +108,16 @@ public class Animal extends AbstractMovableWorldMapElement {
         this.setEnergy(this.getEnergy() - thisEnergyCost);
         otherAnimal.setEnergy(otherAnimal.getEnergy() - otherEnergyCost);
 
-        for (var observer : this.lifeObservers) {
-            observer.animalSuccessfulProcreation(this, otherAnimal);
+        var child = new Animal(this.map, this.position, thisEnergyCost + otherEnergyCost, newGenotype);
+        this.becameParent(child);
+        otherAnimal.becameParent(child);
+        return child;
+    }
+
+    protected void becameParent(Animal child) {
+        for (var observer : lifeObservers) {
+            observer.animalBecameParent(this, child);
         }
-        return new Animal(this.map, this.position, thisEnergyCost + otherEnergyCost, newGenotype);
     }
 
     public String toString() {

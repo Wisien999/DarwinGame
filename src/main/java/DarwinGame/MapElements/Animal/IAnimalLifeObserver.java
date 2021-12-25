@@ -5,5 +5,5 @@ import DarwinGame.MapElements.Animal.Animal;
 public interface IAnimalLifeObserver {
     void animalCreated(Animal animal);
     void animalDied(Animal animal);
-    void animalSuccessfulProcreation(Animal parent1, Animal parent2);
+    void animalBecameParent(Animal parent, Animal child);
 }

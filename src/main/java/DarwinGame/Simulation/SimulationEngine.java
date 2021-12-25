@@ -193,6 +193,11 @@ public class SimulationEngine implements IEngine, Runnable {
             observer.animalCreated(animal);
         }
     }
+
+    public int getDayNumber() {
+        return dayNumber;
+    }
+
     private void nextDay() {
         dayNumber++;
         for (var observer : this.nextDayObservers) {

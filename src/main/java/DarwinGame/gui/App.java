@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -74,6 +75,18 @@ public class App extends Application {
         var plantEnergyNumberBox = new NumberTextField(GUIConfig.plantEnergy);
         gridPane.addRow(7, new Label("Plant energy:"), plantEnergyNumberBox);
 
+        var unboundedMapEvolutionTypeComboBox = new ComboBox<EvolutionType>();
+        unboundedMapEvolutionTypeComboBox.getItems().add(EvolutionType.STANDARD);
+        unboundedMapEvolutionTypeComboBox.getItems().add(EvolutionType.MAGICAL);
+        unboundedMapEvolutionTypeComboBox.getSelectionModel().selectFirst();
+        gridPane.addRow(8, new Label("Unbounded map evolution type"), unboundedMapEvolutionTypeComboBox);
+
+        var boundedMapEvolutionTypeComboBox = new ComboBox<EvolutionType>();
+        boundedMapEvolutionTypeComboBox.getItems().add(EvolutionType.STANDARD);
+        boundedMapEvolutionTypeComboBox.getItems().add(EvolutionType.MAGICAL);
+        boundedMapEvolutionTypeComboBox.getSelectionModel().selectFirst();
+        gridPane.addRow(9, new Label("Bounded map evolution type"), boundedMapEvolutionTypeComboBox);
+
 
         Button startSimulationButton = new Button("Go to the simulations view");
         startSimulationButton.setOnAction(event -> {
@@ -88,8 +101,16 @@ public class App extends Application {
             SimulationConfig.noOfStartingAnimals = noOfPrimaryAnimalsTextBox.getNumber().intValue();
 
 
-            boundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue(), true);
-            unboundedWorldMapSimulationStage = new SimulationStage(mapWidth, mapHeight, jungleDimensions.getKey(), jungleDimensions.getValue(), false);
+            boundedWorldMapSimulationStage = new SimulationStage(
+                    mapWidth, mapHeight,
+                    jungleDimensions.getKey(), jungleDimensions.getValue(),
+                    true,
+                    boundedMapEvolutionTypeComboBox.getSelectionModel().getSelectedItem());
+            unboundedWorldMapSimulationStage = new SimulationStage(
+                    mapWidth, mapHeight,
+                    jungleDimensions.getKey(), jungleDimensions.getValue(),
+                    false,
+                    unboundedMapEvolutionTypeComboBox.getSelectionModel().getSelectedItem());
             boundedWorldMapSimulationStage.setTitle("Bounded World");
             unboundedWorldMapSimulationStage.setTitle("Unbounded World");
             primaryStage.close();

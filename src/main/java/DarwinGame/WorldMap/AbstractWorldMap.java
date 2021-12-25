@@ -54,6 +54,21 @@ public abstract class AbstractWorldMap implements IPositionChangeObserver, IEner
         animal.addLifeObserver(this);
     }
 
+    public Optional<Vector2d> getRandomFreePosition() {
+        if (this.mapBoundary.getSlotsTaken() >= this.mapBoundary.area()) {
+            return Optional.empty();
+        }
+
+        Vector2d position;
+        do {
+            position = Vector2d.getRandomVectorBetween(
+                    this.getMapBoundary().lowerLeft(),
+                    this.getMapBoundary().upperRight());
+        } while (this.isOccupied(position));
+
+        return Optional.of(position);
+    }
+
     private void incrementSlotsTaken(Vector2d position) {
         if (this.mapBoundary.isInside(position)) {
             this.mapBoundary.incrementSlotsTaken();

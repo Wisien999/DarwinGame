@@ -8,4 +8,6 @@ public class SimulationConfig {
     public static int plantEnergy = 20;
     public static int simulationMoveDelay = 300;
     public static int simulationDayEnergyCost = 1;
+    public static int maxMagicalRescue = 3;
+    public static int magicalRescueAnimalCountActivator = 5;
 }

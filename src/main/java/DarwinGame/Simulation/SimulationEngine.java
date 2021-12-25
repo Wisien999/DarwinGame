@@ -10,6 +10,7 @@ import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.Boundary;
 import DarwinGame.WorldMap.MapAnimalContainer;
+import DarwinGame.gui.EvolutionType;
 import DarwinGame.gui.IMapRefreshNeededObserver;
 
 import java.util.*;
@@ -24,13 +25,14 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<IAnimalLifeObserver> animalLifeObservers = new ArrayList<>();
     private final List<INextDayObserver> nextDayObservers = new ArrayList<>();
     private int dayNumber = 0;
+    private int magicalRescuesLeft;
 
-    public SimulationEngine(AbstractWorldMap map) {
-        this(map, SimulationConfig.noOfStartingAnimals);
+    public SimulationEngine(AbstractWorldMap map, EvolutionType evolutionType) {
+        this(map, SimulationConfig.noOfStartingAnimals, evolutionType);
     }
 
-    public SimulationEngine(AbstractWorldMap map, SimpleStatisticsHandler statisticsHandler) {
-        this(map, SimulationConfig.noOfStartingAnimals);
+    public SimulationEngine(AbstractWorldMap map, SimpleStatisticsHandler statisticsHandler, EvolutionType evolutionType) {
+        this(map, SimulationConfig.noOfStartingAnimals, evolutionType);
 
         simpleStatisticsHandler = statisticsHandler;
 
@@ -45,7 +47,11 @@ public class SimulationEngine implements IEngine, Runnable {
         }
     }
 
-    public SimulationEngine(AbstractWorldMap map, int noOfStartingAnimals) {
+    public SimulationEngine(AbstractWorldMap map, int noOfStartingAnimals, EvolutionType evolutionType) {
+        if (evolutionType.equals(EvolutionType.MAGICAL)) {
+             magicalRescuesLeft = SimulationConfig.maxMagicalRescue;
+        }
+
         this.map = map;
 
         Boundary mapBoundary = this.map.getMapBoundary();
@@ -62,6 +68,30 @@ public class SimulationEngine implements IEngine, Runnable {
             Animal animal = new Animal(this.map, animalPosition);
             this.map.place(animal);
             this.animals.add(animal);
+        }
+    }
+
+
+    void duplicateAnimals() {
+        List<Animal> newAnimals = new ArrayList<>();
+
+        for (var animal : animals) {
+            var genotype = animal.getGenotype();
+            var newAnimalPosition = this.map.getRandomFreePosition();
+            newAnimalPosition.ifPresent(pos -> newAnimals.add(
+                    new Animal(this.map, pos, SimulationConfig.defaultAmountOfEnergyPoints, genotype)
+            ));
+        }
+
+        for (var newAnimal : newAnimals) {
+            this.map.place(newAnimal);
+            this.animals.add(newAnimal);
+
+            if (simpleStatisticsHandler != null) {
+                newAnimal.addLifeObserver(simpleStatisticsHandler);
+                newAnimal.addEnergyObserver(simpleStatisticsHandler);
+            }
+            animalCreated(newAnimal);
         }
     }
 
@@ -156,6 +186,10 @@ public class SimulationEngine implements IEngine, Runnable {
     }
 
     private void makeSimulationStep() {
+        if (animals.size() == SimulationConfig.magicalRescueAnimalCountActivator && magicalRescuesLeft > 0) {
+            duplicateAnimals();
+            magicalRescuesLeft--;
+        }
         lowerEnergyLevelsAndRemoveDeadAnimals();
         makeTurnAction();
         feedAnimals();

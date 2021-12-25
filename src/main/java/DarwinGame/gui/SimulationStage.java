@@ -34,7 +34,8 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
     private final SimulationController simulationController;
 
 
-    public SimulationStage(int mapWidth, int mapHeight, int jungleWidth, int jungleHeight, boolean bounded) {
+    public SimulationStage(int mapWidth, int mapHeight, int jungleWidth, int jungleHeight, boolean bounded,
+                           EvolutionType evolutionType) {
         AbstractWorldMap worldMap;
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
@@ -51,7 +52,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
 
 
         worldMapGuiElement = new GuiWorldMap(worldMap, this);
-        this.simulationController = new SimulationController(worldMap);
+        this.simulationController = new SimulationController(worldMap, evolutionType);
         this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
         statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler(), this);
         this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(statisticsBox);

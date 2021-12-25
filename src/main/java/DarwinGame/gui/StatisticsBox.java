@@ -43,7 +43,7 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
         saveToFileButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
 
-            //Set extension filter for text files
+            //Set extension filter for csv files
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
             fileChooser.getExtensionFilters().add(extFilter);
 
@@ -198,14 +198,11 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
 
     @Override
     public void simulationStarted() {
-        buttons.setVisible(true);
-
-
+        buttons.setVisible(false);
     }
 
     @Override
     public void simulationStopped() {
-        buttons.setVisible(false);
-
+        buttons.setVisible(true);
     }
 }

@@ -2,6 +2,7 @@ package DarwinGame.Simulation;
 
 import DarwinGame.Statistics.SimpleStatisticsHandler;
 import DarwinGame.WorldMap.AbstractWorldMap;
+import DarwinGame.gui.EvolutionType;
 import DarwinGame.gui.GuiWorldMap;
 
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ public class SimulationController {
     private Thread engineThread;
 
 
-    public SimulationController(AbstractWorldMap map) {
-        this.engine = new SimulationEngine(map, simpleStatisticsHandler);
+    public SimulationController(AbstractWorldMap map, EvolutionType evolutionType) {
+        this.engine = new SimulationEngine(map, simpleStatisticsHandler, evolutionType);
         this.engine.addNextDayObserver(simpleStatisticsHandler);
     }
 

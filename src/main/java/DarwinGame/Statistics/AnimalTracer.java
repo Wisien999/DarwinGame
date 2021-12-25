@@ -3,30 +3,28 @@ package DarwinGame.Statistics;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Animal.IAnimalLifeObserver;
 import DarwinGame.Simulation.INextDayObserver;
-import jdk.dynalink.linker.LinkerServices;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class AnimalTracer implements IAnimalLifeObserver, INextDayObserver {
     private final Animal tracedAnimal;
-    private int deathDay;
-    private final List<Animal> children = new ArrayList<>();
-    private final List<Animal> descendants = new ArrayList<>();
+    private int deathDay = -1;
+    private int noOfChildren = 0;
+    private int noOfDescendants = 0;
 
     private int currentDayNumber;
 
 
     public AnimalTracer(Animal tracedAnimal) {
         this.tracedAnimal = tracedAnimal;
+        tracedAnimal.addLifeObserver(this);
     }
 
     @Override
     public void animalBecameParent(Animal parent, Animal child) {
         if (parent.equals(tracedAnimal)) {
-            children.add(child);
+            noOfChildren++;
         }
-        descendants.add(child);
+        noOfDescendants++;
 
 
         child.addLifeObserver(this);
@@ -47,5 +45,15 @@ public class AnimalTracer implements IAnimalLifeObserver, INextDayObserver {
     @Override
     public void nextDay(int dayNumber) {
         currentDayNumber = dayNumber;
+    }
+
+    public int getDeathDay() {
+        return deathDay;
+    }
+    public int getNoOfChildren() {
+        return noOfChildren;
+    }
+    public int getNoOfDescendants() {
+        return noOfDescendants;
     }
 }

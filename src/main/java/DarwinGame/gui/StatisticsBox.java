@@ -2,6 +2,7 @@ package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Simulation.ISimulationObserver;
+import DarwinGame.Statistics.AnimalTracer;
 import DarwinGame.Statistics.SimpleStatisticsHandler;
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -12,20 +13,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulationObserver {
     private final GridPane simpleStatisticsGrid = new GridPane();
+    private final GridPane animalTracerGrid = new GridPane();
     private final SimpleStatisticsHandler simpleStatisticsHandler;
+    private AnimalTracer animalTracer;
     XYChart.Series<Number, Number> noOfAliveAnimalsSeries = new XYChart.Series<>();
     XYChart.Series<Number, Number> grassTuftsSeries = new XYChart.Series<>();
     XYChart.Series<Number, Number> averageEnergySeries = new XYChart.Series<>();
@@ -72,7 +73,11 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
         chartsContainer.setContent(charts);
         buttons.getChildren().addAll(saveToFileButton, markDominantGenotypeAnimalsButton);
         buttons.setVisible(false);
-        this.getChildren().addAll(buttons, simpleStatisticsGrid, chartsContainer);
+        HBox currentStatistics = new HBox();
+        Region currentStatisticsSpacer = new Region();
+        HBox.setHgrow(currentStatisticsSpacer, Priority.ALWAYS);
+        currentStatistics.getChildren().addAll(simpleStatisticsGrid, currentStatisticsSpacer, animalTracerGrid);
+        this.getChildren().addAll(buttons, currentStatistics, chartsContainer);
 
         var aliveAnimalsLineChart = createLineChart("Alive animals", "Number of animals alive", noOfAliveAnimalsSeries);
         var grassTuftsLineChart = createLineChart("Grass tufts", "Number of grass tufts on the map", grassTuftsSeries);
@@ -108,6 +113,18 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
 
 
     private void renderStatistics() {
+        animalTracerGrid.getChildren().clear();
+        if (animalTracer != null) {
+            animalTracerGrid.addRow(1, new Label("Number of children"),
+                    new Label(String.valueOf(animalTracer.getNoOfChildren())));
+            animalTracerGrid.addRow(2, new Label("Number of descendants"),
+                    new Label(String.valueOf(animalTracer.getNoOfDescendants())));
+            if (animalTracer.getDeathDay() != -1) {
+                animalTracerGrid.addRow(3, new Label("Death day number"),
+                        new Label(String.valueOf(animalTracer.getDeathDay())));
+            }
+        }
+
         simpleStatisticsGrid.getChildren().clear();
         this.simpleStatisticsGrid.addRow(1, new Label("Number of animals alive"),
                 new Label(Integer.toString(simpleStatisticsHandler.getNoOfAliveAnimals())));
@@ -199,6 +216,11 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
     @Override
     public void simulationStarted() {
         buttons.setVisible(false);
+    }
+
+    public void setAnimalTracer(AnimalTracer animalTracer) {
+        this.animalTracer = animalTracer;
+        renderStatistics();
     }
 
     @Override

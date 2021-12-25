@@ -3,6 +3,7 @@ package DarwinGame.gui;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.Simulation.SimulationConfig;
 import DarwinGame.Simulation.SimulationController;
+import DarwinGame.Statistics.AnimalTracer;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.BoundedWorldMap;
@@ -70,7 +71,6 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
             double newDelay = timeSlider.getValue();
 
             this.simulationController.getEngine().setMoveDelay((int) newDelay);
-
         });
 
         Region spacer = new Region();
@@ -121,7 +121,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         });
     }
 
-    private void showPopUp(String title, String message) {
+    public void showPopUp(String title, String message) {
         VBox layout = new VBox();
         Label titleLabel = new Label(title);
         titleLabel.setFont(Font.font(25d));
@@ -150,6 +150,11 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         if (guiMapElement.mapElement instanceof Animal animal) {
             if (event.getButton() == MouseButton.PRIMARY) {
                 showPopUp("Genotype of the clicked animal", animal.getGenotype().toString());
+            }
+            if (event.getButton() == MouseButton.SECONDARY) {
+                AnimalTracer animalTracer = new AnimalTracer(animal);
+                simulationController.getEngine().addNextDayObserver(animalTracer);
+                statisticsBox.setAnimalTracer(animalTracer);
             }
         }
 

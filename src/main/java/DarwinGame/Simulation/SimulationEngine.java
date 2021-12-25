@@ -26,6 +26,7 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<INextDayObserver> nextDayObservers = new ArrayList<>();
     private int dayNumber = 0;
     private int magicalRescuesLeft;
+    private int moveDelay = SimulationConfig.simulationMoveDelay;
 
     public SimulationEngine(AbstractWorldMap map, EvolutionType evolutionType) {
         this(map, SimulationConfig.noOfStartingAnimals, evolutionType);
@@ -95,6 +96,14 @@ public class SimulationEngine implements IEngine, Runnable {
         }
     }
 
+    public void setMoveDelay(int moveDelay) {
+        if (moveDelay <= 0) {
+            return;
+        }
+
+        this.moveDelay = moveDelay;
+    }
+
     @Override
     public void run() {
         while(true) {
@@ -103,7 +112,7 @@ public class SimulationEngine implements IEngine, Runnable {
             this.mapRefreshNeeded();
             try {
                 //noinspection BusyWait
-                Thread.sleep(SimulationConfig.simulationMoveDelay);
+                Thread.sleep(this.moveDelay);
             } catch (InterruptedException e) {
                 return;
             }

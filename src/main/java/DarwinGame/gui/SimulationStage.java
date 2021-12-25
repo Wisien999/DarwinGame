@@ -1,6 +1,7 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
+import DarwinGame.Simulation.SimulationConfig;
 import DarwinGame.Simulation.SimulationController;
 import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
@@ -12,6 +13,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -58,6 +60,19 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(statisticsBox);
         this.simulationController.addSimulationObserver(statisticsBox);
 
+        Slider timeSlider = new Slider(10, 5000, SimulationConfig.simulationMoveDelay);
+        timeSlider.setShowTickLabels(true);
+        timeSlider.setShowTickMarks(true);
+        timeSlider.setMajorTickUnit(50);
+        timeSlider.setMinorTickCount(5);
+        timeSlider.setBlockIncrement(50);
+        timeSlider.valueProperty().addListener(e -> {
+            double newDelay = timeSlider.getValue();
+
+            this.simulationController.getEngine().setMoveDelay((int) newDelay);
+
+        });
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -76,7 +91,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
             startSimulationButtonFire(startButton);
         });
 
-        simulationControls.getChildren().addAll(startButton);
+        simulationControls.getChildren().addAll(startButton, timeSlider);
 
         layout.getChildren().addAll(worldMapGuiElement.getMapBox(), spacer, rightBox);
 

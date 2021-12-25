@@ -1,10 +1,7 @@
 package DarwinGame.gui;
 
 import DarwinGame.Simulation.SimulationConfig;
-import DarwinGame.WorldMap.BoundedWorldMap;
-import DarwinGame.WorldMap.UnboundedWorldMap;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,16 +10,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 
-import javax.lang.model.util.SimpleAnnotationValueVisitor6;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 
 public class App extends Application {
-    GuiWorldMap boundedWorldMapGuiElement;
-    GuiWorldMap unboundedWorldMapGuiElement;
     Stage primaryStage;
 
     SimulationStage boundedWorldMapSimulationStage;
@@ -31,10 +24,6 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
-        this.primaryStage.setOnCloseRequest(e -> {
-//            Platform.exit();
-//            System.exit(0);
-        });
 
         Scene configScene = createConfigScene();
 
@@ -88,7 +77,7 @@ public class App extends Application {
         gridPane.addRow(9, new Label("Bounded map evolution type"), boundedMapEvolutionTypeComboBox);
 
 
-        Button startSimulationButton = new Button("Go to the simulations view");
+        Button startSimulationButton = new Button("Create simulations");
         startSimulationButton.setOnAction(event -> {
             int mapWidth = mapWidthTextBox.getNumber().intValue();
             int mapHeight = mapHeightTextBox.getNumber().intValue();
@@ -120,24 +109,4 @@ public class App extends Application {
         layout.getChildren().add(startSimulationButton);
         return new Scene(layout, 500, 600);
     }
-
-
-    private Scene createSimulationScene() {
-        VBox layout = new VBox();
-
-
-        HBox simulationsGrids = new HBox();
-        layout.getChildren().addAll(simulationsGrids);
-
-        var spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setMargin(this.unboundedWorldMapGuiElement.getMapBox(), new Insets(10, 10, 0, 10));
-        HBox.setMargin(this.boundedWorldMapGuiElement.getMapBox(), new Insets(10, 10, 0, 10));
-
-        simulationsGrids.getChildren().addAll(this.unboundedWorldMapGuiElement.getMapBox(), spacer, this.boundedWorldMapGuiElement.getMapBox());
-
-
-        return new Scene(layout, 1000, 600);
-    }
-
 }

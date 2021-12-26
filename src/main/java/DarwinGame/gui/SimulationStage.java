@@ -1,6 +1,7 @@
 package DarwinGame.gui;
 
 import DarwinGame.MapElements.Animal.Animal;
+import DarwinGame.Simulation.ISimulationEventObserver;
 import DarwinGame.Simulation.SimulationConfig;
 import DarwinGame.Simulation.SimulationController;
 import DarwinGame.Statistics.AnimalTracer;
@@ -8,6 +9,7 @@ import DarwinGame.Vector2d;
 import DarwinGame.WorldMap.AbstractWorldMap;
 import DarwinGame.WorldMap.BoundedWorldMap;
 import DarwinGame.WorldMap.UnboundedWorldMap;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -24,11 +26,10 @@ import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.util.List;
 import java.util.Set;
 
 
-public class SimulationStage extends Stage implements IGuiWorldMapElementClickObserver {
+public class SimulationStage extends Stage implements IGuiWorldMapElementClickObserver, ISimulationEventObserver {
     private final GuiWorldMap worldMapGuiElement;
     private final StatisticsBox statisticsBox;
 
@@ -57,6 +58,10 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         worldMapGuiElement = new GuiWorldMap(worldMap, this);
         this.simulationController = new SimulationController(worldMap, evolutionType);
         this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
+
+        simulationController.getEngine().addSimulationEventObserver(this);
+
+
         statisticsBox = new StatisticsBox(simulationController.getSimpleStatisticsHandler(), this);
         this.simulationController.getSimpleStatisticsHandler().addStatisticsObserver(statisticsBox);
         this.simulationController.addSimulationObserver(statisticsBox);
@@ -72,6 +77,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
 
             this.simulationController.getEngine().setMoveDelay((int) newDelay);
         });
+        HBox.setHgrow(timeSlider, Priority.ALWAYS);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -83,13 +89,10 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         HBox simulationControls = new HBox();
         rightBox.getChildren().addAll(simulationControls, statisticsBox);
 
-
         this.setOnCloseRequest(e -> this.simulationController.stopSimulation());
 
         Button startButton = new Button("Start simulation");
-        startButton.setOnAction(e -> {
-            startSimulationButtonFire(startButton);
-        });
+        startButton.setOnAction(e -> startSimulationButtonFire(startButton));
 
         simulationControls.getChildren().addAll(startButton, timeSlider);
 
@@ -97,7 +100,6 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
 
         this.setY(bounds.getMinY());
         this.setScene(new Scene(layout, bounds.getWidth()/2, bounds.getHeight()));
-//        this.setMaximized(true);
         this.show();
     }
 
@@ -106,9 +108,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         simulationController.startSimulation();
 
         button.setText("Stop simulation");
-        button.setOnAction(e -> {
-            stopSimulationButtonFire(button);
-        });
+        button.setOnAction(e -> stopSimulationButtonFire(button));
     }
 
 
@@ -116,9 +116,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         simulationController.stopSimulation();
 
         button.setText("Start simulation");
-        button.setOnAction(e -> {
-            startSimulationButtonFire(button);
-        });
+        button.setOnAction(e -> startSimulationButtonFire(button));
     }
 
     public void showPopUp(String title, String message) {
@@ -158,5 +156,13 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
             }
         }
 
+    }
+
+    @Override
+    public void magicalRescueHappened(int magicalRescuesLeft) {
+        Platform.runLater(() ->
+            showPopUp("Magical rescue happened!",
+                    "Magical rescues left: " + simulationController.getEngine().getMagicalRescuesLeft())
+        );
     }
 }

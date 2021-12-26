@@ -3,12 +3,11 @@ package DarwinGame.gui;
 import DarwinGame.MapElements.AbstractWorldMapElement;
 import DarwinGame.MapElements.Animal.Animal;
 import DarwinGame.MapElements.Grass;
-import DarwinGame.Statistics.AnimalTracer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -22,7 +21,7 @@ import static DarwinGame.gui.GuiHelpers.generateSolidColorImage;
 
 public class GuiMapElement extends StackPane {
     protected AbstractWorldMapElement mapElement;
-    private List<IGuiWorldMapElementClickObserver> guiWorldMapElementClickObservers = new ArrayList<>();
+    private final List<IGuiWorldMapElementClickObserver> guiWorldMapElementClickObservers = new ArrayList<>();
 
 
     public GuiMapElement(AbstractWorldMapElement mapElement) {
@@ -46,10 +45,12 @@ public class GuiMapElement extends StackPane {
             }
             image = generateSolidColorImage(1, 1, r, g, b, 1);
         }
+        catch (NullPointerException e) {
+            image = new WritableImage(32, 32);
+        }
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(18);
         imageView.setFitHeight(18);
-
 
 
         this.getChildren().add(imageView);

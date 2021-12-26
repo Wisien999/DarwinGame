@@ -27,10 +27,7 @@ public class App extends Application {
 
         Scene configScene = createConfigScene();
 
-
-
         this.primaryStage.setScene(configScene);
-//        primaryStage.setScene(createSimulationScene());
         this.primaryStage.show();
     }
 
@@ -102,6 +99,7 @@ public class App extends Application {
                     unboundedMapEvolutionTypeComboBox.getSelectionModel().getSelectedItem());
             boundedWorldMapSimulationStage.setTitle("Bounded World");
             unboundedWorldMapSimulationStage.setTitle("Unbounded World");
+
             primaryStage.close();
         });
 

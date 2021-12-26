@@ -24,6 +24,7 @@ public class SimulationEngine implements IEngine, Runnable {
     private SimpleStatisticsHandler simpleStatisticsHandler;
     private final List<IAnimalLifeObserver> animalLifeObservers = new ArrayList<>();
     private final List<INextDayObserver> nextDayObservers = new ArrayList<>();
+    private final List<ISimulationEventObserver> simulationEventObservers = new ArrayList<>();
     private int dayNumber = 0;
     private int magicalRescuesLeft;
     private int moveDelay = SimulationConfig.simulationMoveDelay;
@@ -198,6 +199,10 @@ public class SimulationEngine implements IEngine, Runnable {
         if (animals.size() == SimulationConfig.magicalRescueAnimalCountActivator && magicalRescuesLeft > 0) {
             duplicateAnimals();
             magicalRescuesLeft--;
+
+            for (var observer : simulationEventObservers) {
+                observer.magicalRescueHappened(magicalRescuesLeft);
+            }
         }
         lowerEnergyLevelsAndRemoveDeadAnimals();
         makeTurnAction();
@@ -231,6 +236,12 @@ public class SimulationEngine implements IEngine, Runnable {
     public void removeNextDayObserver(INextDayObserver observer) {
         this.nextDayObservers.remove(observer);
     }
+    public void addSimulationEventObserver(ISimulationEventObserver observer) {
+        this.simulationEventObservers.add(observer);
+    }
+    public void removeSimulationEventObserver(ISimulationEventObserver observer) {
+        this.simulationEventObservers.remove(observer);
+    }
     private void animalCreated(Animal animal) {
         for (var observer : animalLifeObservers) {
             observer.animalCreated(animal);
@@ -246,5 +257,9 @@ public class SimulationEngine implements IEngine, Runnable {
         for (var observer : this.nextDayObservers) {
             observer.nextDay(dayNumber);
         }
+    }
+
+    public int getMagicalRescuesLeft() {
+        return magicalRescuesLeft;
     }
 }

@@ -63,7 +63,9 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
         markDominantGenotypeAnimalsButton.setOnAction(event -> {
             var dominantGenotypeAnimals = simpleStatisticsHandler.getAnimalsOfDominantGenotype();
 
-            var positionSet = dominantGenotypeAnimals.stream().map(Animal::getPosition).collect(Collectors.toUnmodifiableSet());
+            var positionSet = dominantGenotypeAnimals.stream()
+                    .map(Animal::getPosition)
+                    .collect(Collectors.toUnmodifiableSet());
 
             parentStage.highlightGuiWorldMapCells(positionSet);
         });
@@ -102,7 +104,7 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
         //creating the chart
         final LineChart<Number,Number> chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(title);
-        chart.setAnimated(true);
+        chart.setAnimated(false);
         chart.setCreateSymbols(false);
         chart.setLegendVisible(false);
 

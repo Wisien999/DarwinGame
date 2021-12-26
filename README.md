@@ -1,3 +1,5 @@
+### Darwin's Game
+
 Pierwszy z projektów na zajęcia z przedmiotu "Programowanie obiektowe" realizowanego w roku 2021/2022 na AGH w Krakowie.
 
 Jest to symulacja prostego świata i zwierząt znajdujących się na nim.
@@ -11,6 +13,6 @@ Po zatrzymaniu symulacji można wykonać kilka akcji:
 - kliknąć LPM (lewym przyciskiem myszy) na zwierze co spowoduje wyświetlenie jego genotypu
 - kliknąć PPM (prawym przyciskiem myszy) na zwierze co spowoduje oznaczenie zwierzęcia do śledzenia
 - zapisać historię symulacji do pliku
-- pokazać na mapie które zwierzęta posiadają dominujący w populacji genotyp
+- pokazać na mapie, które zwierzęta posiadają dominujący w populacji genotyp
 
 

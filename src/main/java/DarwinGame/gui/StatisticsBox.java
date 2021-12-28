@@ -220,6 +220,10 @@ public class StatisticsBox extends VBox implements IStatisticsObserver, ISimulat
         buttons.setVisible(false);
     }
 
+    public AnimalTracer getAnimalTracer() {
+        return animalTracer;
+    }
+
     public void setAnimalTracer(AnimalTracer animalTracer) {
         this.animalTracer = animalTracer;
         renderStatistics();

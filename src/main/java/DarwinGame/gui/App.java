@@ -40,9 +40,9 @@ public class App extends Application {
         hBoxGrid.getChildren().add(gridPane);
         VBox.setMargin(hBoxGrid, new Insets(20, 0, 0, 0));
         layout.getChildren().add(hBoxGrid);
-        gridPane.setGridLinesVisible(true);
-        gridPane.setHgap(20);
-        layout.setSpacing(20);
+        gridPane.setHgap(30);
+        layout.setSpacing(40);
+        gridPane.setVgap(8);
 
         var mapHeightTextBox = new NumberTextField(GUIConfig.mapHeightDefault);
         gridPane.addRow(1, new Label("Map height:"), mapHeightTextBox);
@@ -105,6 +105,6 @@ public class App extends Application {
 
 
         layout.getChildren().add(startSimulationButton);
-        return new Scene(layout, 500, 600);
+        return new Scene(layout, 500, 500);
     }
 }

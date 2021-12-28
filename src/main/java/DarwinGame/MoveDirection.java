@@ -1,7 +1,5 @@
 package DarwinGame;
 
-import DarwinGame.MapElements.Animal.Gene;
-
 import java.util.Arrays;
 import java.util.Optional;
 

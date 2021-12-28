@@ -19,7 +19,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SimulationEngine implements IEngine, Runnable {
     private final AbstractWorldMap map;
     private final List<Animal> animals = new ArrayList<>();
-    private final List<Animal> deadAnimals = new ArrayList<>();
     private final List<IMapRefreshNeededObserver> mapRefreshNeededObservers = new ArrayList<>();
     private SimpleStatisticsHandler simpleStatisticsHandler;
     private final List<IAnimalLifeObserver> animalLifeObservers = new ArrayList<>();
@@ -29,9 +28,6 @@ public class SimulationEngine implements IEngine, Runnable {
     private int magicalRescuesLeft;
     private int moveDelay = SimulationConfig.simulationMoveDelay;
 
-    public SimulationEngine(AbstractWorldMap map, EvolutionType evolutionType) {
-        this(map, SimulationConfig.noOfStartingAnimals, evolutionType);
-    }
 
     public SimulationEngine(AbstractWorldMap map, SimpleStatisticsHandler statisticsHandler, EvolutionType evolutionType) {
         this(map, SimulationConfig.noOfStartingAnimals, evolutionType);
@@ -130,8 +126,6 @@ public class SimulationEngine implements IEngine, Runnable {
         }
 
         this.animals.removeAll(newDeadAnimals);
-        this.deadAnimals.addAll(newDeadAnimals);
-
     }
 
     private void feedAnimals() {
@@ -214,9 +208,6 @@ public class SimulationEngine implements IEngine, Runnable {
     public void addMapRefreshNeededObserver(IMapRefreshNeededObserver observer) {
         this.mapRefreshNeededObservers.add(observer);
     }
-    public void removeMapRefreshNeededObservers(IMapRefreshNeededObserver observer) {
-        this.mapRefreshNeededObservers.remove(observer);
-    }
 
     private void mapRefreshNeeded() {
         for (var observer : this.mapRefreshNeededObservers) {
@@ -227,9 +218,6 @@ public class SimulationEngine implements IEngine, Runnable {
     public void addAnimalLifeObserver(IAnimalLifeObserver observer) {
         this.animalLifeObservers.add(observer);
     }
-    public void removeAnimalLifeObserver(IAnimalLifeObserver observer) {
-        this.animalLifeObservers.remove(observer);
-    }
     public void addNextDayObserver(INextDayObserver observer) {
         this.nextDayObservers.add(observer);
     }
@@ -239,17 +227,10 @@ public class SimulationEngine implements IEngine, Runnable {
     public void addSimulationEventObserver(ISimulationEventObserver observer) {
         this.simulationEventObservers.add(observer);
     }
-    public void removeSimulationEventObserver(ISimulationEventObserver observer) {
-        this.simulationEventObservers.remove(observer);
-    }
     private void animalCreated(Animal animal) {
         for (var observer : animalLifeObservers) {
             observer.animalCreated(animal);
         }
-    }
-
-    public int getDayNumber() {
-        return dayNumber;
     }
 
     private void nextDay() {

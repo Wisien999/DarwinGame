@@ -30,7 +30,7 @@ import java.util.Set;
 
 
 public class SimulationStage extends Stage implements IGuiWorldMapElementClickObserver, ISimulationEventObserver {
-    private final GuiWorldMap worldMapGuiElement;
+    private final GuiWorldMap worldMapGui;
     private final StatisticsBox statisticsBox;
 
     private final Popup popup = new Popup();
@@ -55,9 +55,9 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
         }
 
 
-        worldMapGuiElement = new GuiWorldMap(worldMap, this);
+        worldMapGui = new GuiWorldMap(worldMap, this);
         this.simulationController = new SimulationController(worldMap, evolutionType);
-        this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGuiElement);
+        this.simulationController.getEngine().addMapRefreshNeededObserver(worldMapGui);
 
         simulationController.getEngine().addSimulationEventObserver(this);
 
@@ -96,7 +96,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
 
         simulationControls.getChildren().addAll(startButton, timeSlider);
 
-        layout.getChildren().addAll(worldMapGuiElement.getMapBox(), spacer, rightBox);
+        layout.getChildren().addAll(worldMapGui, spacer, rightBox);
 
         this.setY(bounds.getMinY());
         this.setScene(new Scene(layout, bounds.getWidth()/2, bounds.getHeight()));
@@ -136,7 +136,7 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
     }
 
     public void highlightGuiWorldMapCells(Set<Vector2d> worldMapPositions) {
-        worldMapGuiElement.highlightCells(worldMapPositions);
+        worldMapGui.highlightCells(worldMapPositions);
     }
 
     @Override
@@ -150,6 +150,9 @@ public class SimulationStage extends Stage implements IGuiWorldMapElementClickOb
                 showPopUp("Genotype of the clicked animal", animal.getGenotype().toString());
             }
             if (event.getButton() == MouseButton.SECONDARY) {
+                if (statisticsBox.getAnimalTracer() != null) {
+                    simulationController.getEngine().removeNextDayObserver(statisticsBox.getAnimalTracer());
+                }
                 AnimalTracer animalTracer = new AnimalTracer(animal);
                 simulationController.getEngine().addNextDayObserver(animalTracer);
                 statisticsBox.setAnimalTracer(animalTracer);

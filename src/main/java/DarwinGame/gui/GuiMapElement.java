@@ -49,8 +49,8 @@ public class GuiMapElement extends StackPane {
             image = new WritableImage(32, 32);
         }
         ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(18);
-        imageView.setFitHeight(18);
+        imageView.setFitWidth(20);
+        imageView.setFitHeight(20);
 
 
         this.getChildren().add(imageView);

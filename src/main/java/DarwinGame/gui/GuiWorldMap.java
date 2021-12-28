@@ -9,6 +9,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -17,11 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GuiWorldMap implements IMapRefreshNeededObserver {
+public class GuiWorldMap extends VBox implements IMapRefreshNeededObserver {
     AbstractWorldMap map;
 
     private final GridPane mapGrid = new GridPane();
-    private final VBox mapBox = new VBox();
 
     private Vector2d displayedUpperRight;
     private Vector2d displayedLowerLeft;
@@ -35,14 +35,9 @@ public class GuiWorldMap implements IMapRefreshNeededObserver {
         this.mapGrid.setGridLinesVisible(true);
 
         mapGrid.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
-        mapBox.getChildren().addAll(mapGrid);
+        getChildren().addAll(mapGrid);
 
         renderGrid();
-    }
-
-
-    public VBox getMapBox() {
-        return mapBox;
     }
 
     @Override

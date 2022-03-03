@@ -1,6 +1,6 @@
 ### Darwin's Game
 
-Pierwszy z projektów na zajęcia z przedmiotu "Programowanie obiektowe" realizowanego w roku 2021/2022 na AGH w Krakowie.
+Pierwszy z projektów na zajęcia z przedmiotu "Programowanie obiektowe" realizowanego w roku 2021/2022 na AGH w Krakowie. [wymagania](https://github.com/apohllo/obiektowe-lab/tree/13940d969b91c72115c455a319b3a36d03dd43b6/proj1).
 
 Jest to symulacja prostego świata i zwierząt znajdujących się na nim.
 
